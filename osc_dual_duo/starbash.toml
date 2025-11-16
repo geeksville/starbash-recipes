@@ -67,7 +67,7 @@ script = '''
     seqextract_HaOIII bkg_pp_{light_base} -resample=ha
     '''
 
-# temporaries = ["FIXME"]
+# temporaries = ["pp_{light_base}"]
 
 [recipe.stage.stack]
 
