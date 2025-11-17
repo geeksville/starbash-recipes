@@ -1,0 +1,158 @@
+
+[repo]
+kind = "recipe"
+
+[recipe]
+author.name = "FIXMEsirilsomeone"
+author.email = "FIXMEsirilsomeone"
+
+# Lower priority recipes are tried to match first
+# - we want this to match after the osc_dual_duo has a chance
+priority = 10
+
+# all sb.toml files can optionally contain a version section.  if version of the running starbash app is out of bounds a warning message will be printed
+# to the user and the file will be ignored for future processing.
+#[recipe.require.version]
+#min = "0.1.0"
+#max = "4.5.8"
+
+[[stages]]
+
+name = "light"
+description = "Extract OSC HaOiii channels"
+# disabled = true # FIXME, debugging later stuff
+
+tool.name = "siril"
+
+# FIXME allow some sort of inheritence for these stage definitions.  because for most 'session' stages the only difference will be the script
+# possibly a general 'repo' level feature of:
+# inherit... does a get() then a deep copy of the named node?
+# this would allow most stage definitions to just be an inhert + a short script string
+#
+#[stages.inherit]
+# if repo is not specified the current repo is assumed?
+#repo = "http://github.com/geeksville/starbash-recipes/osc_single_duo"
+#node = "stage_def.foo"
+
+# FIXME find cleaner handling for things like 'light_base' and verify that this whole flow can work
+
+# Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
+script = '''
+    # Create a sequence from the raw light frames, seq file goes to process_dir
+    link {light_base} -out={process_dir}
+    cd {process_dir}
+
+    # Calibrate the light frames using master bias and flat
+    calibrate {light_base} -bias={master["bias"]} -flat={master["flat"]} -cfa -equalize_cfa
+
+    # Remove background gradient on a per-frame basis (generates bkg_pp_light.seq)
+    seqsubsky pp_{light_base} 1
+
+    # we only do this step for duo filters
+    seqextract_HaOIII bkg_pp_{light_base} -resample=ha
+    '''
+
+# temporaries = ["pp_{light_base}"]
+
+
+[[stages.inputs]]
+# Auto find input light frames for the current session
+# Look for files in input repos, finding them by using the "relative" tag they contain
+kind = "session" # FIXME Formerly called "repo"
+type = "light"   # we are only applicable for sessions of type light frame
+
+# 'requires' expressions say required metadata for this input.  All requires blocks must be satisfied for this input to be considered.
+# Note: kind is designed so that eventually we could programmtically add new types of require blocks - even from recipes?
+[[stages.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = [
+    "HaOiii",
+    "SiiOiii",
+] # if a list is given it means OR.  If you want to do and use multiple requires blocks
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 2          # siril needs at least 2 frames to stack
+
+[[stages.inputs.requires]]
+kind = "camera"
+value = "color" # only color cameras supported for osc dual duo
+
+# inputs.name could eventually be optionally be specified.  But currently they are alway auto generated.
+# the 'name' will appear in the context as context["input"][name]
+# In the case of session based inputs the name will will be coded based on a combination of the session ID and the type.
+# inputs.name = "light_s{session["id"]}" # e.g. light_s23 for session ID 23
+
+[[stages.inputs]]
+kind = "master" # FIXME Formerly called "repo"
+type = "bias"   # we are only applicable for sessions of type light frame
+# default input name will be context["input"]["master_bias"]
+
+[[stages.inputs]]
+kind = "master" # FIXME Formerly called "repo"
+type = "flat"   # we are only applicable for sessions of type light frame
+# default input name will be context["input"]["master_flat"]
+
+# the base name for our light files
+# FIXME - this keying based on session ID now happens automatially for stage.multiplex = "session"
+# context.light_base = '''light_s{session["id"]}'''
+
+[[stages.outputs]]
+
+# kind="job" means this file will be generated in the shared job directory used for all tasks.  Normally this
+# directory is keyed based on a target name (we might be processing multiple sessions on that one target)
+kind = "job"
+
+# this name is combined with the source to construct a full absolute path for the output file
+# note - this name might include multiplex based keys like _s23
+# FIXME: is it possible to allow wildcards in this string?  so that doit 'clean' operations would automatically know all
+# of the output files (including the subframes)
+name = "bkg_pp_{light_base}_.seq"
+
+[[stages]]
+
+# this stage is considered if the previous stage in this same array
+# was run.  It must be run inside the same tempdir (so that files from previous stage are available)
+
+description = "Stack OSC dual duo (HaOiii + SiiOiii) filter data: with separate Ha, Oiii and Sii channels"
+
+tool.name = "python"
+
+# this script requires dual filters
+auto.require.filter = ["SiiOiii", "HaOiii"]
+
+# if not specified starbash.py used
+# script-file = "script.py"
+
+# or inline python code can be provided here.  In this case I'm using some python
+# code I'm temporarily sharing from the main project...
+script = '''
+    from starbash.recipes import osc
+    osc.logger = logger
+    osc.context = context
+    osc.osc_process(has_ha_oiii=True, has_sii_oiii=True)
+    '''
+
+[[stages.inputs]]
+kind = "job"
+name = "bkg_pp_{light_base}_.seq"
+
+# Note: when inputs.requires are applied to 'job' inputs we will actually be checking the UNION of all input session files - not the
+# intermediate job files
+# This stage requires that the session contain BOTH HaOiii and SiiOiii filter data
+[[stages.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = ["HaOiii"]
+[[stages.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = ["SiiOiii"]
+
+# Based on the following definitions in the stage toml file...
+# FIXME, we should inherit this - most recipes shouldn't have to declare it
+# Note: outputs will be prefilled in the context so that the script can use them
+[[stages.outputs]]
+kind = "repo"
+type = "processed"

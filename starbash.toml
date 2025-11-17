@@ -16,6 +16,9 @@ dir = "master_flat"
 # But later if we see a dataset containing only HaOiii data, assume osc_single_duo should be used.
 
 [[repo-ref]]
+dir = "osc_dual_duo2"
+
+[[repo-ref]]
 dir = "osc_dual_duo"
 
 [[repo-ref]]
