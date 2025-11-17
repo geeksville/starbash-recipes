@@ -20,8 +20,9 @@ priority = 10
 
 name = "light"
 description = "Extract OSC HaOiii channels"
-# disabled = true # FIXME, debugging later stuff
+# disabled = true # can be used to prevent considering this stage (for debugging or whatever)
 
+# We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
 
 # FIXME allow some sort of inheritence for these stage definitions.  because for most 'session' stages the only difference will be the script
@@ -34,7 +35,12 @@ tool.name = "siril"
 #repo = "http://github.com/geeksville/starbash-recipes/osc_single_duo"
 #node = "stage_def.foo"
 
-# FIXME find cleaner handling for things like 'light_base' and verify that this whole flow can work
+# recipes/stages can explicitly add new entries to the context dict.  This is useful for making short
+# readable keys that can be used in scripts.  For example here we are defining 'light_base' to be the base name
+# of the input light frames for this session.
+[stages.context]
+light_base = """{context["input"]["light"].base}"""
+# Note: process_dir is provided automatically by the stage runner tasks
 
 # Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
 script = '''
@@ -50,15 +56,20 @@ script = '''
 
     # we only do this step for duo filters
     seqextract_HaOIII bkg_pp_{light_base} -resample=ha
+    # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
     '''
 
 # temporaries = ["pp_{light_base}"]
 
-
+# inputs.name could eventually be optionally be specified.  But currently they are alway auto generated.
+# in this case the 'name' will be "light" and therefore context["input"]["light"] will contain the information
+# about this input.
+# In the case of session based inputs the name will will be coded based on a combination of the session ID and the type.
+# context["input"]["light"].base = "light_s{session["id"]}" # e.g. light_s23 for session ID 23
 [[stages.inputs]]
 # Auto find input light frames for the current session
 # Look for files in input repos, finding them by using the "relative" tag they contain
-kind = "session" # FIXME Formerly called "repo"
+kind = "session" # Formerly called "repo"
 type = "light"   # we are only applicable for sessions of type light frame
 
 # 'requires' expressions say required metadata for this input.  All requires blocks must be satisfied for this input to be considered.
@@ -79,24 +90,15 @@ value = 2          # siril needs at least 2 frames to stack
 kind = "camera"
 value = "color" # only color cameras supported for osc dual duo
 
-# inputs.name could eventually be optionally be specified.  But currently they are alway auto generated.
-# the 'name' will appear in the context as context["input"][name]
-# In the case of session based inputs the name will will be coded based on a combination of the session ID and the type.
-# inputs.name = "light_s{session["id"]}" # e.g. light_s23 for session ID 23
-
 [[stages.inputs]]
-kind = "master" # FIXME Formerly called "repo"
+kind = "master" # Formerly called "repo"
 type = "bias"   # we are only applicable for sessions of type light frame
 # default input name will be context["input"]["master_bias"]
 
 [[stages.inputs]]
-kind = "master" # FIXME Formerly called "repo"
+kind = "master" # Formerly called "repo"
 type = "flat"   # we are only applicable for sessions of type light frame
 # default input name will be context["input"]["master_flat"]
-
-# the base name for our light files
-# FIXME - this keying based on session ID now happens automatially for stage.multiplex = "session"
-# context.light_base = '''light_s{session["id"]}'''
 
 [[stages.outputs]]
 
@@ -104,11 +106,15 @@ type = "flat"   # we are only applicable for sessions of type light frame
 # directory is keyed based on a target name (we might be processing multiple sessions on that one target)
 kind = "job"
 
-# this name is combined with the source to construct a full absolute path for the output file
-# note - this name might include multiplex based keys like _s23
-# FIXME: is it possible to allow wildcards in this string?  so that doit 'clean' operations would automatically know all
-# of the output files (including the subframes)
-name = "bkg_pp_{light_base}_.seq"
+# this name is combined with the job directory to construct a full absolute path for the output file
+# note - this name might include multiplex based keys like _s23.  It is also allowed to use variable names from the context.
+#
+# TBD: is it possible to allow wildcards in this string?  so that doit 'clean' operations would automatically know all
+# of the output files (including the subframes).
+#
+# Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
+# strings.
+name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
 
 [[stages]]
 
@@ -133,10 +139,15 @@ script = '''
     osc.context = context
     osc.osc_process(has_ha_oiii=True, has_sii_oiii=True)
     '''
+[stages.context]
+
+# where to put final results
+# make a common base stage importable def for "final_stage"?
+results_dir = """{context["output"]["processed"].base}"""
 
 [[stages.inputs]]
 kind = "job"
-name = "bkg_pp_{light_base}_.seq"
+name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
 
 # Note: when inputs.requires are applied to 'job' inputs we will actually be checking the UNION of all input session files - not the
 # intermediate job files
@@ -151,8 +162,14 @@ name = "filter"
 value = ["SiiOiii"]
 
 # Based on the following definitions in the stage toml file...
-# FIXME, we should inherit this - most recipes shouldn't have to declare it
 # Note: outputs will be prefilled in the context so that the script can use them
 [[stages.outputs]]
-kind = "repo"
-type = "processed"
+# the 'processed' output points to a directory in the 'processed' repo but named based on the target we are trying to build for
+# see above for a rule that automatically populates the results_dir shorthand
+kind = "processed"
+name = [
+    "starbash.toml",     # FIXME: automatically add starbash.toml as an output for any 'processed' outputs?
+    "stacked_Ha.fits",
+    "stacked_Oiii.fits",
+    "stacked_Sii.fits",
+]
