@@ -150,15 +150,32 @@ results_dir = """{context["output"]["processed"].base}"""
 
 [[stages2.inputs]]
 kind = "job"
-name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
+name = "ha"
 
-# Note: when inputs.requires are applied to 'job' inputs we will actually be checking the UNION of all input session files - not the
-# intermediate job files
-# This stage requires that the session contain BOTH HaOiii and SiiOiii filter data
 [[stages2.inputs.requires]]
 kind = "metadata"
 name = "filter"
 value = ["HaOiii"]
+
+# FIXME: "Ha_bkg_pp_*_.seq" can't work - because 'light_base' is session specific, we really instead want to do a glob_match of some sort
+# but globs() can't be evaluated until after we've run at least the preceeding tasks (so they can make the files).
+#
+# Insted we **guarantee** that the "job" input will be auto populated with the expected output files for all the sessions that
+# were multiplexed at the previous stage
+# name = ["Ha_bkg_pp_{multiplexed}_.seq", "OIII_bkg_pp_{multiplexed}_.seq"]
+
+# Notice how we have TWO inputs, each of kind job but with a DIFFERENT require filter block.  This will auto provision our context
+# with two input dictionaries.  One named "sii" and the other named "ha".  The names picked for "job" kind can be anything you want -
+# they are only used to name the input dicts in context["input"].
+
+# the metadata filtering is performed on the INPUT files for the previous stage - because those are the only ones that exist at the
+# point we are deciding which inputs to provide here.  If the metadata matches for a session/task/multiplex for the prior task, all of
+# that task's outputs will be grouped into the corresponding named job.
+
+[[stages2.inputs]]
+kind = "job"
+name ="sii"
+
 [[stages2.inputs.requires]]
 kind = "metadata"
 name = "filter"
