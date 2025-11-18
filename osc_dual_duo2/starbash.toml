@@ -56,7 +56,7 @@ script = '''
 # readable keys that can be used in scripts.  For example here we are defining 'light_base' to be the base name
 # of the input light frames for this session.
 [stages2.context]
-light_base = """{context["input"]["light"].base}"""
+light_base = """{input["light"].base}"""
 # Note: process_dir is provided automatically by the stage runner tasks
 
 # temporaries = ["pp_{light_base}"]
