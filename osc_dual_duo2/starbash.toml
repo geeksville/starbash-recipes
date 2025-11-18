@@ -35,13 +35,6 @@ tool.name = "siril"
 #repo = "http://github.com/geeksville/starbash-recipes/osc_single_duo"
 #node = "stage_def.foo"
 
-# recipes/stages can explicitly add new entries to the context dict.  This is useful for making short
-# readable keys that can be used in scripts.  For example here we are defining 'light_base' to be the base name
-# of the input light frames for this session.
-[stages2.context]
-light_base = """{context["input"]["light"].base}"""
-# Note: process_dir is provided automatically by the stage runner tasks
-
 # Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
 script = '''
     # Create a sequence from the raw light frames, seq file goes to process_dir
@@ -59,6 +52,13 @@ script = '''
     # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
     '''
 
+# recipes/stages can explicitly add new entries to the context dict.  This is useful for making short
+# readable keys that can be used in scripts.  For example here we are defining 'light_base' to be the base name
+# of the input light frames for this session.
+[stages2.context]
+light_base = """{context["input"]["light"].base}"""
+# Note: process_dir is provided automatically by the stage runner tasks
+
 # temporaries = ["pp_{light_base}"]
 
 # inputs.name could eventually be optionally be specified.  But currently they are alway auto generated.
@@ -74,6 +74,7 @@ type = "light"   # we are only applicable for sessions of type light frame
 
 # 'requires' expressions say required metadata for this input.  All requires blocks must be satisfied for this input to be considered.
 # Note: kind is designed so that eventually we could programmtically add new types of require blocks - even from recipes?
+# Note: currently 'requires' is only allowed for session inputs, but we could generalize it in the future if needed.
 [[stages2.inputs.requires]]
 kind = "metadata"
 name = "filter"
@@ -84,7 +85,7 @@ value = [
 
 [[stages2.inputs.requires]]
 kind = "min_count"
-value = 2          # siril needs at least 2 frames to stack
+value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
 
 [[stages2.inputs.requires]]
 kind = "camera"
@@ -140,6 +141,7 @@ script = '''
     osc.context = context
     osc.osc_process(has_ha_oiii=True, has_sii_oiii=True)
     '''
+
 [stages2.context]
 
 # where to put final results
