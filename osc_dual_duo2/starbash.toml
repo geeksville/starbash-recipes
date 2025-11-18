@@ -42,7 +42,7 @@ script = '''
     cd {process_dir}
 
     # Calibrate the light frames using master bias and flat
-    calibrate {light_base} -bias={master["bias"]} -flat={master["flat"]} -cfa -equalize_cfa
+    calibrate {light_base} -bias={input["bias"].full} -flat={input["flat"].full} -cfa -equalize_cfa
 
     # Remove background gradient on a per-frame basis (generates bkg_pp_light.seq)
     seqsubsky pp_{light_base} 1
