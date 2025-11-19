@@ -137,17 +137,11 @@ auto.require.filter = ["SiiOiii", "HaOiii"]
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
 script = '''
-    from starbash.recipes import osc
-    osc.logger = logger
-    osc.context = context
-    osc.osc_process(has_ha_oiii=True, has_sii_oiii=True)
+    from starbash.recipes import osc2
+    osc2.logger = logger
+    osc2.context = context
+    osc2.osc_process(has_ha_oiii=True, has_sii_oiii=True)
     '''
-
-[stages2.context]
-
-# where to put final results
-# make a common base stage importable def for "final_stage"?
-results_dir = """{context["output"]["processed"].base}"""
 
 [[stages2.inputs]]
 kind = "job"
