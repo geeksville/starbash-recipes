@@ -84,12 +84,13 @@ value = [
 ] # if a list is given it means OR.  If you want to do and use multiple requires blocks
 
 [[stages2.inputs.requires]]
-kind = "min_count"
-value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
-
-[[stages2.inputs.requires]]
 kind = "camera"
 value = "color" # only color cameras supported for osc dual duo
+
+# Note: require clauses are evaluated in order.  So for 'min_count' we probably want to test that last, after all other filtering is done.
+[[stages2.inputs.requires]]
+kind = "min_count"
+value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
 
 [[stages2.inputs]]
 kind = "master" # Formerly called "repo"
@@ -157,17 +158,13 @@ kind = "metadata"
 name = "filter"
 value = ["HaOiii"]
 
-# FIXME: "Ha_bkg_pp_*_.seq" can't work - because 'light_base' is session specific, we really instead want to do a glob_match of some sort
-# but globs() can't be evaluated until after we've run at least the preceeding tasks (so they can make the files).
-#
 # Insted we **guarantee** that the "job" input will be auto populated with the expected output files for all the sessions that
 # were multiplexed at the previous stage
-# name = ["Ha_bkg_pp_{multiplexed}_.seq", "OIII_bkg_pp_{multiplexed}_.seq"]
-
+#
 # Notice how we have TWO inputs, each of kind job but with a DIFFERENT require filter block.  This will auto provision our context
 # with two input dictionaries.  One named "sii" and the other named "ha".  The names picked for "job" kind can be anything you want -
 # they are only used to name the input dicts in context["input"].
-
+#
 # the metadata filtering is performed on the INPUT files for the previous stage - because those are the only ones that exist at the
 # point we are deciding which inputs to provide here.  If the metadata matches for a session/task/multiplex for the prior task, all of
 # that task's outputs will be grouped into the corresponding named job.
