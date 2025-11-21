@@ -97,7 +97,7 @@ kind = "job"
 #
 # Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
 # strings.
-name = ["pp_{light_base}_.seq"]
+name = ["bkg_pp_{light_base}_.seq"]
 
 [[stages2]]
 
@@ -109,6 +109,8 @@ description = "Extract OSC HaOiii channels"
 tool.name = "siril"
 
 script = '''
+    # FIXME - we should make process_dir the default CD unless importing files
+    cd {process_dir}
     # we only do this step for duo filters
     seqextract_HaOIII bkg_pp_{light_base} -resample=ha
     # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
@@ -211,6 +213,6 @@ kind = "processed"
 name = [
     "starbash.toml",     # FIXME: automatically add starbash.toml as an output for any 'processed' outputs?
     "stacked_Ha.fits",
-    "stacked_Oiii.fits",
+    "stacked_OIII.fits",
     "stacked_Sii.fits",
 ]
