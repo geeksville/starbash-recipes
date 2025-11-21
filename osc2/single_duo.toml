@@ -1,0 +1,112 @@
+
+[repo]
+kind = "recipe"
+
+[recipe]
+author.name = "FIXMEsirilsomeone"
+author.email = "FIXMEsirilsomeone"
+
+# FIXME move this to stages
+# Lower priority recipes are tried to match first
+# - we want this to match after the osc_dual_duo has a chance
+# priority = 10
+
+# all sb.toml files can optionally contain a version section.  if version of the running starbash app is out of bounds a warning message will be printed
+# to the user and the file will be ignored for future processing.
+#[recipe.require.version]
+#min = "0.1.0"
+#max = "4.5.8"
+
+[[stages2]]
+
+name = "seqextract_haoiii"
+description = "Extract OSC HaOiii channels"
+# disabled = true # can be used to prevent considering this stage (for debugging or whatever)
+
+# We should normally be inheriting this from a common base stage definition
+tool.name = "siril"
+
+script = '''
+    # we only do this step for duo filters
+    seqextract_HaOIII bkg_pp_{light_base} -resample=ha
+    # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
+    '''
+
+[[stages2.inputs]]
+# "session-extra" means we assume we are following after a prior stage.  The context for our task will be copied from the
+# context from the prior stage (so we can use variables, etc... defined in that stage).
+kind = "session-extra" # After session-prep, FIXME change name to "session-step"
+after = "light"   # the name of the step we want to follow
+
+[[stages2.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = [
+    "HaOiii",
+    "SiiOiii",
+] # if a list is given it means OR.  If you want to do and use multiple requires blocks
+
+[[stages2.inputs.requires]]
+kind = "camera"
+value = "color" # only color cameras supported for osc dual duo
+
+[[stages2.outputs]]
+
+# kind="job" means this file will be generated in the shared job directory used for all tasks.  Normally this
+# directory is keyed based on a target name (we might be processing multiple sessions on that one target)
+kind = "job"
+
+# this name is combined with the job directory to construct a full absolute path for the output file
+# note - this name might include multiplex based keys like _s23.  It is also allowed to use variable names from the context.
+#
+# TBD: is it possible to allow wildcards in this string?  so that doit 'clean' operations would automatically know all
+# of the output files (including the subframes).
+#
+# Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
+# strings.
+name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
+
+
+
+[[stages2]]
+
+# this stage is considered if the previous stage in this same array
+# was run.  It must be run inside the same tempdir (so that files from previous stage are available)
+
+name = "stack_single_duo"
+description = "Stack OSC single duo (HaOiii) filter data: with separate Ha and Oiii channels"
+
+tool.name = "python"
+
+# if not specified starbash.py used
+# script-file = "script.py"
+
+# or inline python code can be provided here.  In this case I'm using some python
+# code I'm temporarily sharing from the main project...
+script = '''
+    from starbash.recipes import osc2
+    osc2.logger = logger
+    osc2.context = context
+    osc2.osc_process(has_ha_oiii=True, has_sii_oiii=False)
+    '''
+
+[[stages2.inputs]]
+kind = "job" # FIXME change name to be something like "multiplexed"?
+name = "ha" # FIXME, make inputs name optional and default to auto incrementing numbers
+
+[[stages2.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = ["HaOiii"]
+
+# Based on the following definitions in the stage toml file...
+# Note: outputs will be prefilled in the context so that the script can use them
+[[stages2.outputs]]
+# the 'processed' output points to a directory in the 'processed' repo but named based on the target we are trying to build for
+# see above for a rule that automatically populates the results_dir shorthand
+kind = "processed"
+name = [
+    "starbash.toml",     # FIXME: automatically add starbash.toml as an output for any 'processed' outputs?
+    "stacked_Ha.fits",
+    "stacked_OIII.fits"
+]

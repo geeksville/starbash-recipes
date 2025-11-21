@@ -1,0 +1,86 @@
+[repo]
+kind = "recipe"
+
+
+[[stages2]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages2
+
+name = "light"
+description = "Extract OSC light calibration"
+# disabled = true # can be used to prevent considering this stage (for debugging or whatever)
+
+# We should normally be inheriting this from a common base stage definition
+tool.name = "siril"
+
+# FIXME allow some sort of inheritence for these stage definitions.  because for most 'session' stages the only difference will be the script
+# possibly a general 'repo' level feature of:
+# inherit... does a get() then a deep copy of the named node?
+# this would allow most stage definitions to just be an inhert + a short script string
+#
+#[stages.inherit]
+# if repo is not specified the current repo is assumed?
+#repo = "http://github.com/geeksville/starbash-recipes/osc_single_duo"
+#node = "stage_def.foo"
+
+# Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
+script = '''
+    # Create a sequence from the raw light frames, seq file goes to process_dir
+    link {light_base} -out={process_dir}
+    cd {process_dir}
+
+    # Calibrate the light frames using master bias and flat
+    calibrate {light_base} -bias={input["bias"].full} -flat={input["flat"].full} -cfa -equalize_cfa
+
+    # Remove background gradient on a per-frame basis (generates bkg_pp_light.seq)
+    seqsubsky pp_{light_base} 1
+    '''
+
+# recipes/stages can explicitly add new entries to the context dict.  This is useful for making short
+# readable keys that can be used in scripts.  For example here we are defining 'light_base' to be the base name
+# of the input light frames for this session.
+[stages2.context]
+light_base = """{input["light"].base}"""
+# Note: process_dir is provided automatically by the stage runner tasks
+
+# temporaries = ["pp_{light_base}"]
+
+# inputs.name could eventually be optionally be specified.  But currently they are alway auto generated.
+# in this case the 'name' will be "light" and therefore context["input"]["light"] will contain the information
+# about this input.
+# In the case of session based inputs the name will will be coded based on a combination of the session ID and the type.
+# context["input"]["light"].base = "light_s{session["id"]}" # e.g. light_s23 for session ID 23
+[[stages2.inputs]]
+# Auto find input light frames for the current session
+# Look for files in input repos, finding them by using the "relative" tag they contain
+kind = "session" # Formerly called "repo"
+type = "light"   # we are only applicable for sessions of type light frame
+
+# Note: require clauses are evaluated in order.  So for 'min_count' we probably want to test that last, after all other filtering is done.
+[[stages2.inputs.requires]]
+kind = "min_count"
+value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
+
+[[stages2.inputs]]
+kind = "master" # Formerly called "repo"
+type = "bias"   # we are only applicable for sessions of type light frame
+# default input name will be context["input"]["master_bias"]
+
+[[stages2.inputs]]
+kind = "master" # Formerly called "repo"
+type = "flat"   # we are only applicable for sessions of type light frame
+# default input name will be context["input"]["master_flat"]
+
+[[stages2.outputs]]
+
+# kind="job" means this file will be generated in the shared job directory used for all tasks.  Normally this
+# directory is keyed based on a target name (we might be processing multiple sessions on that one target)
+kind = "job"
+
+# this name is combined with the job directory to construct a full absolute path for the output file
+# note - this name might include multiplex based keys like _s23.  It is also allowed to use variable names from the context.
+#
+# TBD: is it possible to allow wildcards in this string?  so that doit 'clean' operations would automatically know all
+# of the output files (including the subframes).
+#
+# Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
+# strings.
+name = ["bkg_pp_{light_base}_.seq"]
