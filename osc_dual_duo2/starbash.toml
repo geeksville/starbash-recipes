@@ -19,7 +19,7 @@ priority = 10
 [[stages2]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages2
 
 name = "light"
-description = "Extract OSC HaOiii channels"
+description = "Extract OSC light calibration"
 # disabled = true # can be used to prevent considering this stage (for debugging or whatever)
 
 # We should normally be inheriting this from a common base stage definition
@@ -46,10 +46,6 @@ script = '''
 
     # Remove background gradient on a per-frame basis (generates bkg_pp_light.seq)
     seqsubsky pp_{light_base} 1
-
-    # we only do this step for duo filters
-    seqextract_HaOIII bkg_pp_{light_base} -resample=ha
-    # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
     '''
 
 # recipes/stages can explicitly add new entries to the context dict.  This is useful for making short
@@ -72,21 +68,6 @@ light_base = """{input["light"].base}"""
 kind = "session" # Formerly called "repo"
 type = "light"   # we are only applicable for sessions of type light frame
 
-# 'requires' expressions say required metadata for this input.  All requires blocks must be satisfied for this input to be considered.
-# Note: kind is designed so that eventually we could programmtically add new types of require blocks - even from recipes?
-# Note: currently 'requires' is only allowed for session inputs, but we could generalize it in the future if needed.
-[[stages2.inputs.requires]]
-kind = "metadata"
-name = "filter"
-value = [
-    "HaOiii",
-    "SiiOiii",
-] # if a list is given it means OR.  If you want to do and use multiple requires blocks
-
-[[stages2.inputs.requires]]
-kind = "camera"
-value = "color" # only color cameras supported for osc dual duo
-
 # Note: require clauses are evaluated in order.  So for 'min_count' we probably want to test that last, after all other filtering is done.
 [[stages2.inputs.requires]]
 kind = "min_count"
@@ -101,6 +82,55 @@ type = "bias"   # we are only applicable for sessions of type light frame
 kind = "master" # Formerly called "repo"
 type = "flat"   # we are only applicable for sessions of type light frame
 # default input name will be context["input"]["master_flat"]
+
+[[stages2.outputs]]
+
+# kind="job" means this file will be generated in the shared job directory used for all tasks.  Normally this
+# directory is keyed based on a target name (we might be processing multiple sessions on that one target)
+kind = "job"
+
+# this name is combined with the job directory to construct a full absolute path for the output file
+# note - this name might include multiplex based keys like _s23.  It is also allowed to use variable names from the context.
+#
+# TBD: is it possible to allow wildcards in this string?  so that doit 'clean' operations would automatically know all
+# of the output files (including the subframes).
+#
+# Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
+# strings.
+name = ["pp_{light_base}_.seq"]
+
+[[stages2]]
+
+name = "seqextract_haoiii"
+description = "Extract OSC HaOiii channels"
+# disabled = true # can be used to prevent considering this stage (for debugging or whatever)
+
+# We should normally be inheriting this from a common base stage definition
+tool.name = "siril"
+
+script = '''
+    # we only do this step for duo filters
+    seqextract_HaOIII bkg_pp_{light_base} -resample=ha
+    # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
+    '''
+
+[[stages2.inputs]]
+# "session-extra" means we assume we are following after a prior stage.  The context for our task will be copied from the
+# context from the prior stage (so we can use variables, etc... defined in that stage).
+kind = "session-extra" # After session-prep, FIXME change name to "session-step"
+after = "light"   # the name of the step we want to follow
+
+[[stages2.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = [
+    "HaOiii",
+    "SiiOiii",
+] # if a list is given it means OR.  If you want to do and use multiple requires blocks
+
+[[stages2.inputs.requires]]
+kind = "camera"
+value = "color" # only color cameras supported for osc dual duo
 
 [[stages2.outputs]]
 
@@ -144,8 +174,8 @@ script = '''
     '''
 
 [[stages2.inputs]]
-kind = "job"
-name = "ha"
+kind = "job" # FIXME change name to be something like "multiplexed"?
+name = "ha" # FIXME, make inputs name optional and default to auto incrementing numbers
 
 [[stages2.inputs.requires]]
 kind = "metadata"
