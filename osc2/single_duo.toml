@@ -93,6 +93,7 @@ script = '''
 [[stages2.inputs]]
 kind = "job" # FIXME change name to be something like "multiplexed"?
 name = "ha" # FIXME, make inputs name optional and default to auto incrementing numbers
+after = "seqextract_haoiii"   # the name of the step we want to follow
 
 [[stages2.inputs.requires]]
 kind = "metadata"
