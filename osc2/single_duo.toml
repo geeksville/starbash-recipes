@@ -76,7 +76,7 @@ name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
 name = "stack_single_duo"
 description = "Stack OSC single duo (HaOiii) filter data: with separate Ha and Oiii channels"
 tool.name = "python"
-priority = 10
+priority = 20
 
 # if not specified starbash.py used
 # script-file = "script.py"

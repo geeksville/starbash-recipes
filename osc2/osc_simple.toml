@@ -22,10 +22,10 @@ author.email = "FIXMEsirilsomeone"
 # this stage is considered if the previous stage in this same array
 # was run.  It must be run inside the same tempdir (so that files from previous stage are available)
 
-name = "stack_dual_duo"
-description = "Stack OSC dual duo (HaOiii + SiiOiii) filter data: with separate Ha, Oiii and Sii channels"
+name = "stack_osc"
+description = "Basic OSC stacking (no fancy narrowband extraction)"
 tool.name = "python"
-priority = 30
+priority = 10
 
 # if not specified starbash.py used
 # script-file = "script.py"
@@ -36,38 +36,13 @@ script = '''
     from starbash.recipes import osc2
     osc2.logger = logger
     osc2.context = context
-    osc2.osc_process(has_ha_oiii=True, has_sii_oiii=True)
+    osc2.osc_process(has_ha_oiii=False, has_sii_oiii=False)
     '''
 
 [[stages2.inputs]]
 kind = "job" # FIXME change name to be something like "multiplexed"?
-name = "ha" # FIXME, make inputs name optional and default to auto incrementing numbers
-after = "seqextract_haoiii"   # the name of the step we want to follow
-
-[[stages2.inputs.requires]]
-kind = "metadata"
-name = "filter"
-value = ["HaOiii"]
-
-# Insted we **guarantee** that the "job" input will be auto populated with the expected output files for all the sessions that
-# were multiplexed at the previous stage
-#
-# Notice how we have TWO inputs, each of kind job but with a DIFFERENT require filter block.  This will auto provision our context
-# with two input dictionaries.  One named "sii" and the other named "ha".  The names picked for "job" kind can be anything you want -
-# they are only used to name the input dicts in context["input"].
-#
-# the metadata filtering is performed on the INPUT files for the previous stage - because those are the only ones that exist at the
-# point we are deciding which inputs to provide here.  If the metadata matches for a session/task/multiplex for the prior task, all of
-# that task's outputs will be grouped into the corresponding named job.
-
-[[stages2.inputs]]
-kind = "job"
-name ="sii"
-
-[[stages2.inputs.requires]]
-kind = "metadata"
-name = "filter"
-value = ["SiiOiii"]
+name = "single" # FIXME, make inputs name optional and default to auto incrementing numbers
+after = "light"   # the name of the step we want to follow
 
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them
@@ -77,7 +52,5 @@ value = ["SiiOiii"]
 kind = "processed"
 name = [
     "starbash.toml",     # FIXME: automatically add starbash.toml as an output for any 'processed' outputs?
-    "stacked_Ha.fits",
-    "stacked_OIII.fits",
-    "stacked_Sii.fits",
+    "stacked.fits"
 ]
