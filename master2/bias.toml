@@ -49,13 +49,14 @@ type = "bias"   # we are only applicable for sessions of type light frame
 # but leaving it here as 'special' means someday we could add it to the session query to improve performance
 # performance.
 
+[[stages2.inputs.requires]]
+kind = "unprocessed" # master generation never wants to consume already processed frames
+
 # Note: require clauses are evaluated in order.  So for 'min_count' we probably want to test that last, after all other filtering is done.
 [[stages2.inputs.requires]]
 kind = "min_count"
 value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
+accept_single = true # if only one frame is found, just reuse it as the output (no stacking needed)
 
 [[stages2.outputs]]
-kind = "master"
-name = [
-    "starbash.toml",     # FIXME: fix this
-]
+kind = "single"
