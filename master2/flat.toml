@@ -1,0 +1,43 @@
+[repo]
+kind = "recipe"
+
+[[stages2]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages2
+
+name = "master_flat"
+description = "Generate master flat"
+# disabled = true # can be used to prevent considering this stage (for debugging or whatever)
+
+# We should normally be inheriting this from a common base stage definition
+tool.name = "siril"
+
+# Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
+script = '''
+    # Create a sequence from the raw flat frames
+    link flat -out={process_dir}
+    cd {process_dir}
+
+    # Calibrate the flat frames using master bias
+    calibrate flat -bias={input["bias"].full}
+
+    # Stack the pre-processed (calibrated) flat frames
+    stack pp_flat rej 3 3 -norm=mul -out={output.base}
+    '''
+
+[[stages2.inputs]]
+kind = "session"
+type = "flat"
+
+[[stages2.inputs.requires]]
+kind = "unprocessed" # master generation never wants to consume already processed frames
+
+[[stages2.inputs]]
+kind = "master"
+type = "bias"
+
+# Note: require clauses are evaluated in order.  So for 'min_count' we probably want to test that last, after all other filtering is done.
+[[stages2.inputs.requires]]
+kind = "min_count"
+value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
+
+[[stages2.outputs]]
+kind = "single"

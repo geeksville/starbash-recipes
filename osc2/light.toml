@@ -40,8 +40,6 @@ script = '''
 light_base = """{input["light"].base}"""
 # Note: process_dir is provided automatically by the stage runner tasks
 
-# temporaries = ["pp_{light_base}"]
-
 # inputs.name could eventually be optionally be specified.  But currently they are alway auto generated.
 # in this case the 'name' will be "light" and therefore context["input"]["light"] will contain the information
 # about this input.
@@ -64,7 +62,7 @@ value = 2          # siril needs at least 2 frames to stack, raise an exception 
 
 [[stages2.inputs]]
 kind = "master" # Formerly called "repo"
-type = "bias"   # we are only applicable for sessions of type light frame
+type = "bias"
 # default input name will be context["input"]["master_bias"]
 
 [[stages2.inputs]]

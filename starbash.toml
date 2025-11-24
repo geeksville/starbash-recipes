@@ -22,6 +22,9 @@ dir = "master2/bias.toml"
 dir = "master2/dark.toml"
 
 [[repo-ref]]
+dir = "master2/flat.toml"
+
+[[repo-ref]]
 dir = "osc2/light.toml"
 
 [[repo-ref]]
