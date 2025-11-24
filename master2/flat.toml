@@ -30,14 +30,14 @@ type = "flat"
 [[stages2.inputs.requires]]
 kind = "unprocessed" # master generation never wants to consume already processed frames
 
-[[stages2.inputs]]
-kind = "master"
-type = "bias"
-
 # Note: require clauses are evaluated in order.  So for 'min_count' we probably want to test that last, after all other filtering is done.
 [[stages2.inputs.requires]]
 kind = "min_count"
 value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
+
+[[stages2.inputs]]
+kind = "master"
+type = "bias"
 
 [[stages2.outputs]]
 kind = "single"
