@@ -40,4 +40,4 @@ kind = "master"
 type = "bias"
 
 [[stages2.outputs]]
-kind = "single"
+kind = "master"

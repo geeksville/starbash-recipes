@@ -49,4 +49,5 @@ value = 2          # siril needs at least 2 frames to stack, raise an exception 
 accept_single = true # if only one frame is found, just reuse it as the output (no stacking needed)
 
 [[stages2.outputs]]
-kind = "single"
+kind = "master"
+
