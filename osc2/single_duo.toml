@@ -30,6 +30,9 @@ script = '''
     # we only do this step for duo filters
     seqextract_HaOIII bkg_pp_{light_base} -resample=ha
     # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
+    # But due to a siril bug? the _.seq file itself is not created.  So do something to force its creation
+    register Ha_bkg_pp_{light_base}
+    register OIII_bkg_pp_{light_base}
     '''
 
 [[stages2.inputs]]
