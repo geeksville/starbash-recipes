@@ -16,57 +16,27 @@ dir = "master_flat"
 # But later if we see a dataset containing only HaOiii data, assume osc_single_duo should be used.
 
 [[repo-ref]]
-dir = "master2/bias.toml"
+dir = "master/bias.toml"
 
 [[repo-ref]]
-dir = "master2/dark.toml"
+dir = "master/dark.toml"
 
 [[repo-ref]]
-dir = "master2/flat.toml"
+dir = "master/flat.toml"
 
 [[repo-ref]]
-dir = "osc2/light.toml"
+dir = "osc/light.toml"
 
 [[repo-ref]]
-dir = "osc2/single_duo.toml"
+dir = "osc/single_duo.toml"
 
 [[repo-ref]]
-dir = "osc2/dual_duo.toml"
+dir = "osc/dual_duo.toml"
 
 [[repo-ref]]
-dir = "osc2/osc_simple.toml"
+dir = "osc/osc_simple.toml"
 
 [[repo-ref]]
 dir = "seestar"
 
-#
-# master specific stages
-#
-[[master-stages]]
-name = "master-bias" # generate master bias frames
-priority = 10
-input = "bias"       # only used for frames of this type
 
-[[master-stages]]
-name = "master-dark" # generate master dark frames
-priority = 10
-input = "dark"
-
-[[master-stages]]
-name = "master-flat" # generate master flat frames
-priority = 20
-input = "flat"
-
-#
-# session specific processing stages
-# FIXME - we are not using this yet, for now we just hardcode in app.py
-
-[[stages]]
-name = "light" # generate light frames from lights and with reference to flats/bias
-priority = 20
-input = "light" # only used for frames of this type
-
-[[stages]]
-name = "stack" # stack frames
-priority = 30
-input = "recipe" # use output from previous stages in the same recipe

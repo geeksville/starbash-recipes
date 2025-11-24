@@ -1,10 +1,10 @@
 [repo]
 kind = "recipe"
 
-[[stages2]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages2
+[[stages]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages
 
-name = "master_dark"
-description = "Generate master dark"
+name = "master_flat"
+description = "Generate master flat"
 # disabled = true # can be used to prevent considering this stage (for debugging or whatever)
 
 # We should normally be inheriting this from a common base stage definition
@@ -12,26 +12,32 @@ tool.name = "siril"
 
 # Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
 script = '''
-    # Convert Bias Frames to .fit files
-    link frames -out={process_dir}
+    # Create a sequence from the raw flat frames
+    link flat -out={process_dir}
     cd {process_dir}
 
-    # Stack frames
-    stack frames rej 3 3 -nonorm -out={output.base}
+    # Calibrate the flat frames using master bias
+    calibrate flat -bias={input["bias"].full}
+
+    # Stack the pre-processed (calibrated) flat frames
+    stack pp_flat rej 3 3 -norm=mul -out={output.base}
     '''
 
-[[stages2.inputs]]
-kind = "session" # Formerly called "repo"
-type = "dark"
+[[stages.inputs]]
+kind = "session"
+type = "flat"
 
-[[stages2.inputs.requires]]
+[[stages.inputs.requires]]
 kind = "unprocessed" # master generation never wants to consume already processed frames
 
 # Note: require clauses are evaluated in order.  So for 'min_count' we probably want to test that last, after all other filtering is done.
-[[stages2.inputs.requires]]
+[[stages.inputs.requires]]
 kind = "min_count"
 value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
-accept_single = true # if only one frame is found, just reuse it as the output (no stacking needed)
 
-[[stages2.outputs]]
+[[stages.inputs]]
+kind = "master"
+type = "bias"
+
+[[stages.outputs]]
 kind = "master"
