@@ -52,7 +52,11 @@ value = [
 
 [[stages.inputs.requires]]
 kind = "camera"
-value = "color" # only color cameras supported for osc dual duo
+value = "color" # only color cameras supported for osc duo
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
 
 [[stages.outputs]]
 
@@ -103,6 +107,10 @@ after = "seqextract_haoiii"   # the name of the step we want to follow
 kind = "metadata"
 name = "filter"
 value = ["HaOiii"]
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
 
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them

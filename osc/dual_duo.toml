@@ -69,6 +69,10 @@ kind = "metadata"
 name = "filter"
 value = ["SiiOiii"]
 
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
+
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them
 [[stages.outputs]]
