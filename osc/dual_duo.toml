@@ -25,7 +25,7 @@ author.email = "FIXMEsirilsomeone"
 name = "stack_dual_duo"
 description = "Stack OSC dual duo (HaOiii + SiiOiii) filter data: with separate Ha, Oiii and Sii channels"
 tool.name = "python"
-priority = 30
+priority = 330
 
 # if not specified starbash.py used
 # script-file = "script.py"

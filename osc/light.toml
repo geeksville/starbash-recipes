@@ -9,6 +9,7 @@ description = "Extract OSC light calibration"
 
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
+priority = 600
 
 # FIXME allow some sort of inheritence for these stage definitions.  because for most 'session' stages the only difference will be the script
 # possibly a general 'repo' level feature of:

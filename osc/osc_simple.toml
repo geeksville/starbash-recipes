@@ -25,7 +25,7 @@ author.email = "FIXMEsirilsomeone"
 name = "stack_osc"
 description = "Basic OSC stacking (no fancy narrowband extraction)"
 tool.name = "python"
-priority = 10
+priority = 310
 
 # if not specified starbash.py used
 # script-file = "script.py"

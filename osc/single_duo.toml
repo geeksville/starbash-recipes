@@ -25,6 +25,7 @@ description = "Extract OSC HaOiii channels"
 
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
+priority = 500
 
 script = '''
     # we only do this step for duo filters
@@ -79,7 +80,7 @@ name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
 name = "stack_single_duo"
 description = "Stack OSC single duo (HaOiii) filter data: with separate Ha and Oiii channels"
 tool.name = "python"
-priority = 20
+priority = 320
 
 # if not specified starbash.py used
 # script-file = "script.py"
