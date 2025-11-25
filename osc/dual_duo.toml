@@ -33,10 +33,10 @@ priority = 30
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
 script = '''
-    from starbash.recipes import osc2
-    osc2.logger = logger
-    osc2.context = context
-    osc2.osc_process(has_ha_oiii=True, has_sii_oiii=True)
+    from starbash.recipes import osc
+    osc.logger = logger
+    osc.context = context
+    osc.osc_process(has_ha_oiii=True, has_sii_oiii=True)
     '''
 
 [[stages.inputs]]
