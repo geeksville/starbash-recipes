@@ -28,6 +28,9 @@ dir = "master/flat.toml"
 dir = "osc/light.toml"
 
 [[repo-ref]]
+dir = "osc/light_no_bias.toml"
+
+[[repo-ref]]
 dir = "osc/single_duo.toml"
 
 [[repo-ref]]
@@ -38,5 +41,3 @@ dir = "osc/osc_simple.toml"
 
 [[repo-ref]]
 dir = "seestar"
-
-

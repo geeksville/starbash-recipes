@@ -42,7 +42,7 @@ script = '''
 [[stages.inputs]]
 kind = "job" # FIXME change name to be something like "multiplexed"?
 name = "single" # FIXME, make inputs name optional and default to auto incrementing numbers
-after = "light"   # the name of the step we want to follow
+after = "light.*"   # the name of the step we want to follow
 
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them

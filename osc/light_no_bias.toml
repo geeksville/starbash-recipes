@@ -3,13 +3,13 @@ kind = "recipe"
 
 [[stages]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages
 
-name = "light"
-description = "Extract OSC light calibration"
+name = "light_no_bias"
+description = "Calibrate OSC lights that have no bias frame available"
 # disabled = true # can be used to prevent considering this stage (for debugging or whatever)
 
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
-priority = 610
+priority = 600
 
 # FIXME allow some sort of inheritence for these stage definitions.  because for most 'session' stages the only difference will be the script
 # possibly a general 'repo' level feature of:
@@ -28,7 +28,7 @@ script = '''
     cd {process_dir}
 
     # Calibrate the light frames using master bias and flat
-    calibrate {light_base} -bias={input["bias"].full} -flat={input["flat"].full} -cfa -equalize_cfa
+    calibrate {light_base} -cfa -equalize_cfa
 
     # Remove background gradient on a per-frame basis (generates bkg_pp_light.seq)
     seqsubsky pp_{light_base} 1
@@ -60,16 +60,6 @@ type = "light"   # we are only applicable for sessions of type light frame
 [[stages.inputs.requires]]
 kind = "min_count"
 value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
-
-[[stages.inputs]]
-kind = "master" # Formerly called "repo"
-type = "bias"
-# default input name will be context["input"]["master_bias"]
-
-[[stages.inputs]]
-kind = "master" # Formerly called "repo"
-type = "flat"   # we are only applicable for sessions of type light frame
-# default input name will be context["input"]["master_flat"]
 
 [[stages.outputs]]
 

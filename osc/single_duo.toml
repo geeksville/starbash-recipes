@@ -40,7 +40,7 @@ script = '''
 # "session-extra" means we assume we are following after a prior stage.  The context for our task will be copied from the
 # context from the prior stage (so we can use variables, etc... defined in that stage).
 kind = "session-extra" # After session-prep, FIXME change name to "session-step"
-after = "light"   # the name of the step we want to follow
+after = "light.*"   # the name of the step we want to follow
 
 [[stages.inputs.requires]]
 kind = "metadata"
