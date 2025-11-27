@@ -25,10 +25,13 @@ dir = "master/dark.toml"
 dir = "master/flat.toml"
 
 [[repo-ref]]
-dir = "osc/light.toml"
+dir = "osc/light_vs_bias.toml"
 
 [[repo-ref]]
-dir = "osc/light_no_bias.toml"
+dir = "osc/light_vs_dark.toml"
+
+[[repo-ref]]
+dir = "osc/light_no_darks.toml"
 
 [[repo-ref]]
 dir = "osc/single_duo.toml"

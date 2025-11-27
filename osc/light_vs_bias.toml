@@ -3,8 +3,8 @@ kind = "recipe"
 
 [[stages]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages
 
-name = "light"
-description = "Extract OSC light calibration"
+name = "light_vs_bias"
+description = "Extract OSC light calibrated vs bias"
 # disabled = true # can be used to prevent considering this stage (for debugging or whatever)
 
 # We should normally be inheriting this from a common base stage definition
