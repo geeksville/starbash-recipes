@@ -35,6 +35,7 @@ kind = "unprocessed" # master generation never wants to consume already processe
 [[stages.inputs.requires]]
 kind = "min_count"
 value = 2          # siril needs at least 2 frames to stack, raise an exception if not enough frames found
+accept_single = true # if only one frame is found, just reuse it as the output (no stacking needed)
 
 [[stages.inputs]]
 kind = "master"
