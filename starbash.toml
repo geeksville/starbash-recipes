@@ -26,6 +26,9 @@ dir = "osc/light_vs_dark.toml"
 dir = "osc/light_no_darks.toml"
 
 [[repo-ref]]
+dir = "osc/seqextract_haoiii.toml"
+
+[[repo-ref]]
 dir = "osc/single_duo.toml"
 
 [[repo-ref]]
@@ -33,3 +36,6 @@ dir = "osc/dual_duo.toml"
 
 [[repo-ref]]
 dir = "osc/osc_simple.toml"
+
+[[repo-ref]]
+dir = "graxpert/background.toml"

@@ -1,0 +1,65 @@
+
+[repo]
+kind = "recipe"
+
+[recipe]
+author.name = "FIXMEsirilsomeone"
+author.email = "FIXMEsirilsomeone"
+
+[[stages]]
+
+name = "seqextract_haoiii"
+description = "Extract OSC HaOiii channels"
+# disabled = true # can be used to prevent considering this stage (for debugging or whatever)
+
+# We should normally be inheriting this from a common base stage definition
+tool.name = "siril"
+priority = 500
+
+script = '''
+    # we only do this step for duo filters
+    seqextract_HaOIII bkg_pp_{light_base} -resample=ha
+    # Note: the sequextract rule generates Ha_bkg_{light_base}_.seq and OIII_bkg_pp_{light_base}_.seq
+    # But due to a siril bug? the _.seq file itself is not created.  So do something to force its creation
+    register Ha_bkg_pp_{light_base}
+    register OIII_bkg_pp_{light_base}
+    '''
+
+[[stages.inputs]]
+# "session-extra" means we assume we are following after a prior stage.  The context for our task will be copied from the
+# context from the prior stage (so we can use variables, etc... defined in that stage).
+kind = "session-extra" # After session-prep, FIXME change name to "session-step"
+after = "light.*"   # the name of the step we want to follow
+
+[[stages.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = [
+    "HaOiii",
+    "SiiOiii",
+] # if a list is given it means OR.  If you want to do and use multiple requires blocks
+
+[[stages.inputs.requires]]
+kind = "camera"
+value = "color" # only color cameras supported for osc duo
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
+
+[[stages.outputs]]
+
+# kind="job" means this file will be generated in the shared job directory used for all tasks.  Normally this
+# directory is keyed based on a target name (we might be processing multiple sessions on that one target)
+kind = "job"
+
+# this name is combined with the job directory to construct a full absolute path for the output file
+# note - this name might include multiplex based keys like _s23.  It is also allowed to use variable names from the context.
+#
+# TBD: is it possible to allow wildcards in this string?  so that doit 'clean' operations would automatically know all
+# of the output files (including the subframes).
+#
+# Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
+# strings.
+name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
+
