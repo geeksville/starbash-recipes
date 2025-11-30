@@ -14,7 +14,13 @@ tool.name = "graxpert"
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
 # FIXME - change graxpert to not add .fits suffix on output file
-script = '''-cmd background-extraction -output "{output.base}/background" "{input[0].base}/stacked.fits"'''
+script = [
+    "-cmd",
+    "background-extraction",
+    "-output",
+    "{output.base}/background.fits",
+    "{input[0].base}/stacked.fits"
+]
 
 [[stages.inputs]]
 kind = "job"
