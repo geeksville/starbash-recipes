@@ -51,6 +51,5 @@ after = "light.*"   # the name of the step we want to follow
 # see above for a rule that automatically populates the results_dir shorthand
 kind = "processed"
 name = [
-    "starbash.toml",     # FIXME: automatically add starbash.toml as an output for any 'processed' outputs?
     "stacked.fits"
 ]
