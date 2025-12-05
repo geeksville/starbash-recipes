@@ -10,10 +10,11 @@ kind = "recipe"
 name = "background"
 description = "Do background subtraction with graxpert"
 tool.name = "graxpert"
+# other options: obj-devconv 1.0.1, stars decov 1.0.0, denoise 3.0.2
+tool.parameters = { "ai_version" = "1.0.1" }
 
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
-# FIXME - change graxpert to not add .fits suffix on output file
 script = [
     "-cmd",
     "background-extraction",
