@@ -19,8 +19,9 @@ script = [
     "-cmd",
     "background-extraction",
     "-output",
-    "{output.base}/background.fits",
-    "{input[0].base}/stacked.fits"
+    "{output.full_paths[0]}",
+    "{input[0].full_paths[0]}"
+    # FIXME, this only processes the first output from prior stage, we should do more
 ]
 
 [[stages.inputs]]
