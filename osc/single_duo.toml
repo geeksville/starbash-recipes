@@ -61,7 +61,6 @@ value = 1          # At this point if we don't have any valid inputs, reject thi
 # see above for a rule that automatically populates the results_dir shorthand
 kind = "processed"
 name = [
-    "starbash.toml",     # FIXME: automatically add starbash.toml as an output for any 'processed' outputs?
     "stacked_Ha.fits",
     "stacked_OIII.fits"
 ]

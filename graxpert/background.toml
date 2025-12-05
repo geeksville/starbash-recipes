@@ -35,6 +35,5 @@ value = 1          # At this point if we don't have any valid inputs, reject thi
 
 [[stages.outputs]]
 kind = "processed"
-name = [
-    "background.fits", # FIXME, automatically generate based on INPUT names?
-]
+auto.prefix = "bk_"
+# name = [ "background.fits" ] # We now auto select output files based on the input file names
