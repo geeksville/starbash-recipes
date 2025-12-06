@@ -9,6 +9,8 @@ kind = "recipe"
 
 name = "denoise"
 description = "Do denoising with graxpert"
+exclude_by_default = true # default to excluding this stage unless enabled via starbash.toml - it is very slow
+
 tool.name = "graxpert"
 tool.parameters = { "ai_version" = "3.0.2" }
 
