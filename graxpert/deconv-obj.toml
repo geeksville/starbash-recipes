@@ -9,6 +9,8 @@ kind = "recipe"
 
 name = "deconv-obj"
 description = "Do object deconvolution with graxpert"
+exclude_by_default = true # default to excluding this stage unless enabled via starbash.toml - it is very slow
+
 tool.name = "graxpert"
 # other options: obj-devconv 1.0.1, stars decov 1.0.0, denoise 3.0.2
 tool.parameters = { "ai_version" = "1.0.1" }
