@@ -4,9 +4,6 @@ kind = "recipe"
 
 [[stages]]
 
-# this stage is considered if the previous stage in this same array
-# was run.  It must be run inside the same tempdir (so that files from previous stage are available)
-
 name = "denoise"
 description = "Do denoising with graxpert"
 exclude_by_default = true # default to excluding this stage unless enabled via starbash.toml - it is very slow

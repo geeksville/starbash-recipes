@@ -4,9 +4,6 @@ kind = "recipe"
 
 [[stages]]
 
-# this stage is considered if the previous stage in this same array
-# was run.  It must be run inside the same tempdir (so that files from previous stage are available)
-
 name = "background"
 description = "Do background subtraction with graxpert"
 tool.name = "graxpert"
