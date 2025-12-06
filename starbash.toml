@@ -39,3 +39,9 @@ dir = "osc/osc_simple.toml"
 
 [[repo-ref]]
 dir = "graxpert/background.toml"
+
+[[repo-ref]]
+dir = "graxpert/deconv-obj.toml"
+
+[[repo-ref]]
+dir = "graxpert/denoise.toml"

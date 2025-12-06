@@ -1,0 +1,37 @@
+
+[repo]
+kind = "recipe"
+
+[[stages]]
+
+# this stage is considered if the previous stage in this same array
+# was run.  It must be run inside the same tempdir (so that files from previous stage are available)
+
+name = "deconv-obj"
+description = "Do object deconvolution with graxpert"
+tool.name = "graxpert"
+# other options: obj-devconv 1.0.1, stars decov 1.0.0, denoise 3.0.2
+tool.parameters = { "ai_version" = "1.0.1" }
+
+# or inline python code can be provided here.  In this case I'm using some python
+# code I'm temporarily sharing from the main project...
+script = [
+    "-cmd",
+    "deconv-obj",
+    "-output",
+    "{output.full_paths[0]}",
+    "{input[0].full_paths[0]}"
+]
+
+[[stages.inputs]]
+kind = "job-multiplex" # "job-multiplex" is like "job" but multiple tasks are created, one per input file from prior stage
+# Note: if name is not specified, the first input will be named 0, second 1, etc.
+after = "background.*"   # the name of the step we want to follow
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
+
+[[stages.outputs]]
+kind = "processed"
+auto.prefix = "dco_"
