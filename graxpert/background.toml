@@ -2,13 +2,28 @@
 [repo]
 kind = "recipe"
 
+[[parameters]]
+name = "smoothing_option"
+default = 0.5 # Value used if not overriden
+description = "Smoothing option for graxpert background extraction"
+
+# If overriden, in the user prefs or the local starbash.toml file for a target, there will be something like:
+# This section will be generated in the starbash.toml as a comment if this recipe is used
+#[[overrides]]
+#name = "smoothing_option" # Smoothing option for graxpert background extraction
+#value = 0.7
+
+[[parameters]]
+name = "bge_ai_version"
+default = "1.0.1"
+description = "AI version for graxpert background extraction"
+
 [[stages]]
 
 name = "background"
 description = "Do background subtraction with graxpert"
 tool.name = "graxpert"
-# other options: obj-devconv 1.0.1, stars decov 1.0.0, denoise 3.0.2
-tool.parameters = { "ai_version" = "1.0.1" }
+tool.parameters = { ai_version = "{parameters.bge_ai_version}", smoothing_option = "{parameters.smoothing_option}" }
 
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
@@ -32,4 +47,5 @@ value = 1          # At this point if we don't have any valid inputs, reject thi
 [[stages.outputs]]
 kind = "processed"
 auto.prefix = "bk_"
-# name = [ "background.fits" ] # We now auto select output files based on the input file names
+# name = [ "background.fits" ] # other options: obj-devconv 1.0.1, stars decov 1.0.0, denoise 3.0.2
+# We now auto select output files based on the input file names
