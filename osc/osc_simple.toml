@@ -40,9 +40,8 @@ script = '''
     '''
 
 [[stages.inputs]]
-kind = "job" # FIXME change name to be something like "multiplexed"?
-name = "single" # FIXME, make inputs name optional and default to auto incrementing numbers
-after = "light.*"   # the name of the step we want to follow
+kind = "job"      # FIXME change name to be something like "multiplexed"?
+after = "light.*" # the name of the step we want to follow
 
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them
@@ -50,6 +49,4 @@ after = "light.*"   # the name of the step we want to follow
 # the 'processed' output points to a directory in the 'processed' repo but named based on the target we are trying to build for
 # see above for a rule that automatically populates the results_dir shorthand
 kind = "processed"
-name = [
-    "stacked.fits"
-]
+name = ["stacked.fits"]

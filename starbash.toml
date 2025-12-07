@@ -48,3 +48,6 @@ dir = "graxpert/deconv-obj.toml"
 
 [[repo-ref]]
 dir = "graxpert/denoise.toml"
+
+[[repo-ref]]
+dir = "common/thumbnail.toml"

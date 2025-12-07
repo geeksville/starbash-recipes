@@ -1,0 +1,44 @@
+
+[repo]
+kind = "recipe"
+
+[recipe]
+author.email = "kevinh@geeksville.com"
+
+[[stages]]
+
+name = "thumbnail"
+description = "Generate a stretched thumbnail image"
+
+tool.name = "siril"
+
+script = '''
+    load "{input[0].full_paths[0]}"
+    autostretch
+    resample -maxdim=512
+    # 4. Save as JPG '90' is the quality setting (1-100)
+    savejpg "{output.full_paths[0]}" 90
+    '''
+
+[[stages.inputs]]
+kind = "job"      # FIXME change name to be something like "multiplexed"?
+after = "stack_.*" # the name of the step we want to follow
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
+
+# Based on the following definitions in the stage toml file...
+# Note: outputs will be prefilled in the context so that the script can use them
+[[stages.outputs]]
+# the 'processed' output points to a directory in the 'processed' repo but named based on the target we are trying to build for
+# see above for a rule that automatically populates the results_dir shorthand
+kind = "processed"
+
+# just keep the same base name but change suffix to .jpg for the thumbnail
+# auto.prefix = "thumb_"
+# Remove any any existing suffix from the filename, siril will always add a .jpg
+auto.suffix = ""
+
+# name = ["thumbnail.jpg"]
+
