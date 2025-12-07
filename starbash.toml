@@ -1,5 +1,8 @@
 [repo]
-kind = "recipe"
+# Most recipe repos should be of kind "recipe".  However, to the 'default' recipe we host on github we call "std-recipe" at app
+# startup the app checks to see if it has at least one "std-recipe", if it doesn't the github hosted version is used automatically.
+# You should never need to make a "std-recipe" unless you intend to completely replace this behavior.
+kind = "std-recipe"
 
 # Note: For automated recipe finding, it is important to list more demanding recipes first.  For instance:
 # osc_dual_duo (which needs a HaOiii and a SiiOiii filter) should be listed first, so that if we see
