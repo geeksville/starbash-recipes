@@ -37,7 +37,7 @@ name = "filter"
 value = [
     "HaOiii",
     "SiiOiii",
-] # if a list is given it means OR.  If you want to do and use multiple requires blocks
+] # if a list is given it means OR.  If you want to do 'AND' use multiple requires blocks
 
 [[stages.inputs.requires]]
 kind = "camera"
