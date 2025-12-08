@@ -26,7 +26,7 @@ script = '''
     load "{input[0].full_paths[0]}"
     autostretch
     resample -maxdim={parameters.thumbnail_size}
-    savejpg "{output.full_paths[0]}" {parameters.thumbnail_quality}
+    savejpg "{output.full_paths[0].with_suffix('')}" {parameters.thumbnail_quality}
     '''
 
 [[stages.inputs]]
@@ -46,8 +46,7 @@ kind = "processed"
 
 # just keep the same base name but change suffix to .jpg for the thumbnail
 # auto.prefix = "thumb_"
-# Remove any any existing suffix from the filename, siril will always add a .jpg
-auto.suffix = ""
+auto.suffix = ".jpg"
 
 # name = ["thumbnail.jpg"]
 
