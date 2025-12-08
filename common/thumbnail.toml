@@ -2,6 +2,16 @@
 [repo]
 kind = "recipe"
 
+[[parameters]]
+name = "thumbnail_size"
+default = 1920
+description = "Maximum dimension for the thumbnail image"
+
+[[parameters]]
+name = "thumbnail_quality"
+default = 80
+description = "Quality setting for the thumbnail image (1-100)"
+
 [recipe]
 author.email = "kevinh@geeksville.com"
 
@@ -15,9 +25,8 @@ tool.name = "siril"
 script = '''
     load "{input[0].full_paths[0]}"
     autostretch
-    resample -maxdim=512
-    # 4. Save as JPG '90' is the quality setting (1-100)
-    savejpg "{output.full_paths[0]}" 90
+    resample -maxdim={parameters.thumbnail_size}
+    savejpg "{output.full_paths[0]}" {parameters.thumbnail_quality}
     '''
 
 [[stages.inputs]]
