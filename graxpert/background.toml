@@ -36,9 +36,10 @@ script = [
 ]
 
 [[stages.inputs]]
-kind = "job-multiplex" # "job-multiplex" is like "job" but multiple tasks are created, one per input file from prior stage
+kind = "job"
 # Note: if name is not specified, the first input will be named 0, second 1, etc.
 after = "stack.*"   # the name of the step we want to follow
+multiplex = true # multiplex is like "job" but multiple tasks are created, one per input file from prior stage
 
 [[stages.inputs.requires]]
 kind = "min_count"
