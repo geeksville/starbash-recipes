@@ -3,35 +3,54 @@
 kind = "recipe"
 
 [recipe]
-author.name = "FIXMEsirilsomeone"
+author.name = "FIXMEsirilsomeone" # FIXME, find original author of the examples I referred to...
 author.email = "FIXMEsirilsomeone"
 
-# all sb.toml files can optionally contain a version section.  if version of the running starbash app is out of bounds a warning message will be printed
-# to the user and the file will be ignored for future processing.
-#[recipe.require.version]
-#min = "0.1.0"
-#max = "4.5.8"
+[[parameters]]
+name = "stack_registration"
+default = "rej g 0.3 0.05" # Value used if not overriden
+description = "Registration options for Siril stacking"
+
+[[parameters]]
+name = "stack_filtering"
+default = "-filter-wfwhm=3k" # Value used if not overriden
+description = "Filtering options for Siril (controls which frames are accepted for stacking)"
+
+[[parameters]]
+name = "stack_options"
+default = "-norm=addscale -output_norm -rgb_equal -32b" # Value used if not overriden
+description = "Misc options for Siril stacking"
 
 [[stages]]
 
-# this stage is considered if the previous stage in this same array
-# was run.  It must be run inside the same tempdir (so that files from previous stage are available)
-
 name = "stack_osc"
 description = "Basic OSC stacking (no fancy narrowband extraction)"
-tool.name = "python"
+tool.name = "siril"
 priority = 310
-
-# if not specified starbash.py used
-# script-file = "script.py"
 
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
 script = '''
-    from starbash.recipes import osc
-    osc.logger = logger
-    osc.context = context
-    osc.osc_process(has_ha_oiii=False, has_sii_oiii=False)
+    # create a seq from the input files
+    cd in
+    link in -out=..
+    cd ..
+
+    # We use -2pass to select the best possible reference frame for others to register against
+    register in -2pass
+
+    # because we are using -2pass we must complete the registration here before stacking
+    # FIXME make drizzle optional
+    seqapplyreg in -drizzle
+
+    stack r_in {parameters.stack_registration} {parameters.stack_filtering} {parameters.stack_options} -out=results
+
+    # and flip if required
+    mirrorx_single results
+
+    # Move the file to final output location
+    load results
+    save "{output.full_paths[0]}"
     '''
 
 [[stages.inputs]]
