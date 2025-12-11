@@ -6,7 +6,7 @@ name = "light_options"
 default = "-cfa -equalize_cfa" # Value used if not overriden
 description = "Light frame calibration options for OSC cameras"
 
-[[stages]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages
+[[stages]]
 
 name = "light_no_darks"
 description = "Calibrate OSC lights that have no dark frames available"

@@ -3,19 +3,8 @@
 kind = "recipe"
 
 [recipe]
-author.name = "FIXMEsirilsomeone"
-author.email = "FIXMEsirilsomeone"
-
-# FIXME move this to stages
-# Lower priority recipes are tried to match first
-# - we want this to match after the osc_dual_duo has a chance
-# priority = 10
-
-# all sb.toml files can optionally contain a version section.  if version of the running starbash app is out of bounds a warning message will be printed
-# to the user and the file will be ignored for future processing.
-#[recipe.require.version]
-#min = "0.1.0"
-#max = "4.5.8"
+# This recipe is heavily based OSC_Extract_HaOIII.ssf in Siril!
+author.name = "Siril Developers"
 
 [[stages]]
 
@@ -40,7 +29,7 @@ script = '''
     '''
 
 [[stages.inputs]]
-kind = "job" # FIXME change name to be something like "multiplexed"?
+kind = "job"
 name = "ha" # Group all inputs of this kind under the name "ha"
 after = "seqextract_haoiii"   # the name of the step we want to follow
 

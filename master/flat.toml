@@ -1,7 +1,7 @@
 [repo]
 kind = "recipe"
 
-[[stages]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages
+[[stages]]
 
 name = "master_flat"
 description = "Generate master flat"

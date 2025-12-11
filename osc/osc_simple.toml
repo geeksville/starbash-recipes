@@ -42,7 +42,6 @@ script = '''
     register in -2pass
 
     # because we are using -2pass we must complete the registration here before stacking
-    # FIXME make drizzle optional
     seqapplyreg in {parameters.stack_drizzle}
 
     stack r_in {parameters.stack_registration} {parameters.stack_filtering} {parameters.stack_options} -out=results

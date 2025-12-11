@@ -30,7 +30,7 @@ script = '''
     '''
 
 [[stages.inputs]]
-kind = "job"      # FIXME change name to be something like "multiplexed"?
+kind = "job"
 after = "stack_.*" # the name of the step we want to follow
 
 [[stages.inputs.requires]]
