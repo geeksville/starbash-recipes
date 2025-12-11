@@ -1,6 +1,11 @@
 [repo]
 kind = "recipe"
 
+[[parameters]]
+name = "light_options"
+default = "-cfa -equalize_cfa" # Value used if not overriden
+description = "Light frame calibration options for OSC cameras"
+
 [[stages]] # FIXME, until I'm ready to remove processing_classic, I'm temporarily calling the 'new style' stages stages
 
 name = "light_no_darks"
@@ -11,16 +16,6 @@ description = "Calibrate OSC lights that have no dark frames available"
 tool.name = "siril"
 priority = 600
 
-# FIXME allow some sort of inheritence for these stage definitions.  because for most 'session' stages the only difference will be the script
-# possibly a general 'repo' level feature of:
-# inherit... does a get() then a deep copy of the named node?
-# this would allow most stage definitions to just be an inhert + a short script string
-#
-#[stages.inherit]
-# if repo is not specified the current repo is assumed?
-#repo = "http://github.com/geeksville/starbash-recipes/osc_single_duo"
-#node = "stage_def.foo"
-
 # Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
 script = '''
     # Create a sequence from the raw light frames, seq file goes to process_dir
@@ -28,7 +23,7 @@ script = '''
     cd {process_dir}
 
     # Calibrate the light frames using master bias and flat
-    calibrate {light_base} -cfa -equalize_cfa
+    calibrate {light_base} {parameters.light_options}
 
     # Remove background gradient on a per-frame basis (generates bkg_pp_light.seq)
     seqsubsky pp_{light_base} 1

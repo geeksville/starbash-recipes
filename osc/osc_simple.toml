@@ -2,10 +2,7 @@
 [repo]
 kind = "recipe"
 
-[recipe]
-author.name = "FIXMEsirilsomeone" # FIXME, find original author of the examples I referred to...
-author.email = "FIXMEsirilsomeone"
-
+# FIXME - share these options via the repo import mechanism, instead of all this copy-and-paste...
 [[parameters]]
 name = "stack_registration"
 default = "rej g 0.3 0.05" # Value used if not overriden
@@ -15,6 +12,11 @@ description = "Registration options for Siril stacking"
 name = "stack_filtering"
 default = "-filter-wfwhm=3k" # Value used if not overriden
 description = "Filtering options for Siril (controls which frames are accepted for stacking)"
+
+[[parameters]]
+name = "stack_drizzle"
+default = "" # Default to no drizzle (for RAM/disk reasons)
+description = "Drizzle option for Siril stacking, set to empty string to disable, or -drizzle to enable"
 
 [[parameters]]
 name = "stack_options"
@@ -33,7 +35,7 @@ priority = 310
 script = '''
     # create a seq from the input files
     cd in
-    link in -out=..
+    convert in -debayer -out=..
     cd ..
 
     # We use -2pass to select the best possible reference frame for others to register against
@@ -41,7 +43,7 @@ script = '''
 
     # because we are using -2pass we must complete the registration here before stacking
     # FIXME make drizzle optional
-    seqapplyreg in -drizzle
+    seqapplyreg in {parameters.stack_drizzle}
 
     stack r_in {parameters.stack_registration} {parameters.stack_filtering} {parameters.stack_options} -out=results
 
