@@ -9,7 +9,6 @@ description = "Generate master flat"
 
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
-priority = 1000
 
 # Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
 script = '''

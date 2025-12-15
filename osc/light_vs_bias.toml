@@ -14,7 +14,6 @@ description = "Extract OSC light calibrated vs bias"
 
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
-priority = 610
 
 # Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
 script = '''

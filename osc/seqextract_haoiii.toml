@@ -10,7 +10,6 @@ description = "Extract OSC HaOiii channels"
 
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
-priority = 500
 
 script = '''
     # we only do this step for duo filters
