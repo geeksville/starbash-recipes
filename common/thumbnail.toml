@@ -31,7 +31,7 @@ script = '''
 
 [[stages.inputs]]
 kind = "job"
-after = "stack_.*" # the name of the step we want to follow
+after = "veralux.*" # the name of the step we want to follow
 
 [[stages.inputs.requires]]
 kind = "min_count"
