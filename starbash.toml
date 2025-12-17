@@ -32,13 +32,13 @@ dir = "osc/light_no_darks.toml"
 dir = "osc/seqextract_haoiii.toml"
 
 [[repo-ref]]
-dir = "osc/single_duo.toml"
+dir = "osc/stack_dual_duo.toml"
 
 [[repo-ref]]
-dir = "osc/dual_duo.toml"
+dir = "osc/stack_single_duo.toml"
 
 [[repo-ref]]
-dir = "osc/osc_simple.toml"
+dir = "osc/stack_osc.toml"
 
 [[repo-ref]]
 dir = "graxpert/background.toml"
