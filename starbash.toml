@@ -54,3 +54,5 @@ dir = "common/thumbnail.toml"
 
 [[repo-ref]]
 url = "https://raw.githubusercontent.com/geeksville/siril-scripts/refs/heads/main/processing/VeraLux_HyperMetric_Stretch.toml"
+# for local testing
+# url = "file:///workspaces/starbash/siril-scripts/processing/VeraLux_HyperMetric_Stretch.toml"
