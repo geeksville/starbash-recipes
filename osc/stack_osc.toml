@@ -30,6 +30,9 @@ description = "Basic OSC stacking (no fancy narrowband extraction)"
 tool.name = "siril"
 priority = 310
 
+# delete foo_ from the working dir
+temporaries = ["in*", "r_in*"]
+
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
 script = '''

@@ -22,7 +22,7 @@ script = '''
 
 # Note: process_dir is provided automatically by the stage runner tasks
 
-# temporaries = ["pp_{light_base}"]
+# temporaries = ["pp_{light_base}*"]
 
 # inputs.name could eventually be optionally be specified.  But currently they are alway auto generated.
 # in this case the 'name' will be "light" and therefore context["input"]["light"] will contain the information

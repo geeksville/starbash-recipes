@@ -11,6 +11,9 @@ description = "Extract OSC HaOiii channels"
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
 
+# No tempories left by this stage
+temporaries = []
+
 script = '''
     # we only do this step for duo filters
     seqextract_HaOIII bkg_pp_{light_base} -resample=ha
