@@ -15,6 +15,8 @@ description = "Calibrate OSC lights that have no dark frames available"
 # We should normally be inheriting this from a common base stage definition
 tool.name = "siril"
 
+temporaries = ["pp_{light_base}*"]
+
 # Notice: the following script should be shared between dual duo **and** single duo workflows.  We shouldn't need to delcare it twice.
 script = '''
     # Create a sequence from the raw light frames, seq file goes to process_dir

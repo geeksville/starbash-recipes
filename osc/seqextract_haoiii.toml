@@ -12,7 +12,7 @@ description = "Extract OSC HaOiii channels"
 tool.name = "siril"
 
 # No tempories left by this stage
-temporaries = []
+temporaries = ["Ha_bkg_pp_{light_base}*", "OIII_bkg_pp_{light_base}*"]
 
 script = '''
     # we only do this step for duo filters
@@ -62,5 +62,5 @@ kind = "job"
 #
 # Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
 # strings.
-name = ["Ha_bkg_pp_{light_base}_.seq", "OIII_bkg_pp_{light_base}_.seq"]
+name = ["r_Ha_bkg_pp_{light_base}_.seq", "r_OIII_bkg_pp_{light_base}_.seq"]
 
