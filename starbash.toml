@@ -50,6 +50,9 @@ dir = "graxpert/deconv-obj.toml"
 dir = "graxpert/denoise.toml"
 
 [[repo-ref]]
+dir = "rc-astro/blur-exterminator.toml"
+
+[[repo-ref]]
 dir = "common/thumbnail.toml"
 
 [[repo-ref]]

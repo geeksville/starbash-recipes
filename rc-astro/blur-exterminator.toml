@@ -1,0 +1,44 @@
+[repo]
+kind = "recipe"
+
+[[parameters]]
+name = "bxt_sharpen_stars"
+default = 0.5 # Value used if not overriden
+description = "BlurXTerminator stellar sharpening strength (0..1)"
+
+[[parameters]]
+name = "bxt_sharpen_nonstellar"
+default = 0.5 # Value used if not overriden
+description = "BlurXTerminator non-stellar sharpening strength (0..1)"
+
+[[stages]]
+
+name = "blur_exterminator"
+description = "Sharpen/deconvolve with BlurXTerminator (rc-astro bxt)"
+tool.name = "rc-astro"
+
+# Note: --json is injected automatically by RCAstroTool, do not add it here.
+script = [
+    "bxt",
+    "{input[0].full_paths[0]}",
+    "--output",
+    "{output.full_paths[0]}",
+    "--sharpen-stars",
+    "{parameters.bxt_sharpen_stars}",
+    "--sharpen-nonstellar",
+    "{parameters.bxt_sharpen_nonstellar}"
+]
+
+[[stages.inputs]]
+kind = "job"
+# By default run after background elimination, analogous to VeraLux_HyperMetric_Stretch.
+after = "background.*"
+multiplex = true # one task per input file from the prior stage
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # If we don't have any valid inputs, reject this stage from consideration
+
+[[stages.outputs]]
+kind = "processed"
+auto.prefix = "bx_"
