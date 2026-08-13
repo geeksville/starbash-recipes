@@ -15,7 +15,7 @@ description = "Filtering options for Siril (controls which frames are accepted f
 
 [[parameters]]
 name = "stack_drizzle"
-default = "" # Default to no drizzle (for RAM/disk reasons)
+default = "-drizzle" # Default to no drizzle (for RAM/disk reasons)
 description = "Drizzle option for Siril stacking, set to empty string to disable, or -drizzle to enable"
 
 [[parameters]]
