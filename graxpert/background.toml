@@ -39,7 +39,7 @@ script = [
 kind = "job"
 # Note: if name is not specified, the first input will be named 0, second 1, etc.
 
-after = "stack_osc.*"   
+after = "stack_.*"   
 # the name of the step we want to follow (FIXME, it should be just stack.* - currently we are limiting)
 # graxpert/veralux to just simple non duo OSC 
 

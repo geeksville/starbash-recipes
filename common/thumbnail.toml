@@ -32,6 +32,7 @@ script = '''
 [[stages.inputs]]
 kind = "job"
 after = "veralux.*" # the name of the step we want to follow
+multiplex = true # one task per upstream file, so multi-file stacks (e.g. Ha/OIII) each get a thumbnail
 
 [[stages.inputs.requires]]
 kind = "min_count"
