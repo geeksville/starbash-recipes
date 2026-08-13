@@ -1,0 +1,59 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+description = "Generate an 'SHO' (golden/blue Hubble palette) from HaOiii (and optionally SiiOiii) data. Green is the real Sii channel when present, otherwise a synthetic Ha/OIII blend."
+
+[[parameters]]
+name = "sho_ha_weight"
+default = 0.4                                                              # Value used if not overriden
+description = "Ha contribution when synthesizing the green channel (0..1)"
+
+[[parameters]]
+name = "sho_oiii_weight"
+default = 0.6                                                                # Value used if not overriden
+description = "OIII contribution when synthesizing the green channel (0..1)"
+
+[[stages]]
+
+name = "sho"
+description = "SHO palette: R=Ha, G=Sii-or-synthetic, B=OIII"
+tool.name = "siril"
+
+# Channels are selected out of the prior stage outputs by filename suffix
+# (_Ha / _OIII / _Sii). We load them by absolute path and re-save under canonical
+# names so Siril PixelMath ($Ha$ / $OIII$) can reference them.
+#
+# The green line is a single template expression: if a _Sii channel is present it
+# expands to `load <sii>` (real Sii on green), otherwise to a `pm` blend of Ha+OIII.
+script = '''
+    # Bring the noise-reduced Ha and OIII channels in under canonical names
+    load {[str(p) for p in input[0].full_paths if "_Ha" in str(p)][0]}
+    save Ha
+    load {[str(p) for p in input[0].full_paths if "_OIII" in str(p)][0]}
+    save OIII
+
+    # Green channel: use the real Sii channel if present, otherwise synthesize one from Ha+OIII
+    {'load ' + [str(p) for p in input[0].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input[0].full_paths if "_Sii" in str(p)] else 'pm "$Ha$ * ' + str(parameters.sho_ha_weight) + ' + $OIII$ * ' + str(parameters.sho_oiii_weight) + '" -rescale 0.0 1.0'}
+    save SynGreen
+
+    # Merge into an SHO image: R=Ha, G=SynGreen (Sii or synthetic), B=OIII
+    rgbcomp Ha SynGreen OIII -out=results
+
+    # Move to the final output location
+    load results
+    save "{output.full_paths[0]}"
+    '''
+
+[[stages.inputs]]
+kind = "job"
+# Run on the noise-reduced channels produced by the rc-astro noise_exterminator stage.
+after = "noise_exterminator"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 2          # need at least both an Ha and an OIII channel
+
+[[stages.outputs]]
+kind = "processed"
+name = ["SHO.fits"]
