@@ -1,0 +1,107 @@
+[repo]
+kind = "recipe"
+
+[[parameters]]
+name = "nxt_denoise"
+# default = 0.90 # If set, passed as --denoise; if commented out, rc-astro uses its own default
+description = "NoiseXTerminator overall denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_intensity"
+# default = 0.90
+description = "NoiseXTerminator intensity denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_color"
+# default = 0.90
+description = "NoiseXTerminator chrominance denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_hf"
+# default = 0.90
+description = "NoiseXTerminator high-frequency (small scale) denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_lf"
+# default = 0.90
+description = "NoiseXTerminator low-frequency (large scale) denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_intensity_hf"
+# default = 0.90
+description = "NoiseXTerminator high-frequency intensity denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_intensity_lf"
+# default = 0.90
+description = "NoiseXTerminator low-frequency intensity denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_color_hf"
+# default = 0.90
+description = "NoiseXTerminator high-frequency color denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_denoise_color_lf"
+# default = 0.90
+description = "NoiseXTerminator low-frequency color denoise strength (0..1)"
+
+[[parameters]]
+name = "nxt_frequency_scale"
+# default = 5.0
+description = "Pixel scale of the low/high frequency transition band (1..100)"
+
+[[parameters]]
+name = "nxt_iterations"
+# default = 2
+description = "Number of denoising iterations (1..5)"
+
+[[stages]]
+
+name = "noise_exterminator"
+description = "Denoise with NoiseXTerminator (rc-astro nxt)"
+tool.name = "rc-astro"
+
+# Note: --json is injected automatically by RCAstroTool, do not add it here.
+script = [
+    "nxt",
+    "{input[0].full_paths[0]}",
+    "--output",
+    "{output.full_paths[0]}",
+    "--denoise",
+    "{parameters.nxt_denoise}",
+    "--denoise-intensity",
+    "{parameters.nxt_denoise_intensity}",
+    "--denoise-color",
+    "{parameters.nxt_denoise_color}",
+    "--denoise-high-freq",
+    "{parameters.nxt_denoise_hf}",
+    "--denoise-low-freq",
+    "{parameters.nxt_denoise_lf}",
+    "--denoise-intensity-high-freq",
+    "{parameters.nxt_denoise_intensity_hf}",
+    "--denoise-intensity-low-freq",
+    "{parameters.nxt_denoise_intensity_lf}",
+    "--denoise-color-high-freq",
+    "{parameters.nxt_denoise_color_hf}",
+    "--denoise-color-low-freq",
+    "{parameters.nxt_denoise_color_lf}",
+    "--frequency-scale",
+    "{parameters.nxt_frequency_scale}",
+    "--iterations",
+    "{parameters.nxt_iterations}"
+]
+
+[[stages.inputs]]
+kind = "job"
+# By default run on the outputs of blur-exterminator.
+after = "blur_exterminator"
+multiplex = true # one task per input file from the prior stage
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # If we don't have any valid inputs, reject this stage from consideration
+
+[[stages.outputs]]
+kind = "processed"
+auto.prefix = "nx_"

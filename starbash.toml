@@ -53,6 +53,9 @@ dir = "graxpert/denoise.toml"
 dir = "rc-astro/blur-exterminator.toml"
 
 [[repo-ref]]
+dir = "rc-astro/noise-exterminator.toml"
+
+[[repo-ref]]
 dir = "common/thumbnail.toml"
 
 [[repo-ref]]
