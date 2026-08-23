@@ -28,7 +28,7 @@ script = '''
 
 [[stages.inputs]]
 kind = "job"
-after = "sho"   # run on the SHO palette output
+after = "palette.*" # run on the SHO palette output
 multiplex = true
 
 [[stages.inputs.requires]]

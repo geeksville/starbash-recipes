@@ -59,6 +59,9 @@ dir = "rc-astro/noise-exterminator.toml"
 dir = "palette/sho.toml"
 
 [[repo-ref]]
+dir = "palette/hoo.toml"
+
+[[repo-ref]]
 dir = "common/thumbnail.toml"
 
 [[repo-ref]]

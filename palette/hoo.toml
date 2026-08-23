@@ -1,0 +1,59 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+description = "Generate an 'HOO' (bicolor) palette from HaOiii data. R=Ha, G/B=OIII, giving natural red nebulosity with teal/blue OIII."
+
+[[parameters]]
+name = "hoo_green_ha_weight"
+default = 0.0                                                                                   # Value used if not overriden
+description = "Ha contribution mixed into the green (OIII) channel (0..1); 0 = pure OIII green"
+
+[[stages]]
+
+name = "palette_hoo"
+description = "HOO palette: R=Ha, G=OIII (optionally blended with Ha), B=OIII"
+tool.name = "siril"
+
+# Channels are selected out of the prior stage outputs by filename suffix
+# (_Ha / _OIII). We load them by absolute path and re-save under canonical
+# names so Siril PixelMath ($Ha$ / $OIII$) can reference them.
+#
+# The green line is a single template expression: green is OIII, optionally
+# blended with a little Ha (hoo_green_ha_weight) to tune the teal hue.
+script = '''
+    # Bring the noise-reduced Ha and OIII channels in under canonical names.
+    # Rescale each to 0..1 so both channels enter rgbcomp on the same footing.
+    load {[str(p) for p in input[0].full_paths if "_Ha" in str(p)][0]}
+    save Ha
+    pm "$Ha$" -rescale 0.0 1.0
+    save Ha
+    load {[str(p) for p in input[0].full_paths if "_OIII" in str(p)][0]}
+    save OIII
+    pm "$OIII$" -rescale 0.0 1.0
+    save OIII
+
+    # Green channel: OIII, optionally blended with a little Ha to shift the hue.
+    pm "$Ha$ * {parameters.hoo_green_ha_weight} + $OIII$ * {1.0 - parameters.hoo_green_ha_weight}" -rescale 0.0 1.0
+    save Green
+
+    # Merge into an HOO image: R=Ha, G=Green (OIII/blend), B=OIII
+    rgbcomp Ha Green OIII -out=results
+
+    # Move to the final output location
+    load results
+    save "{output.full_paths[0]}"
+    '''
+
+[[stages.inputs]]
+kind = "job"
+# Run on the noise-reduced channels produced by the rc-astro noise_exterminator stage.
+after = "noise_exterminator"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 2          # need at least both an Ha and an OIII channel
+
+[[stages.outputs]]
+kind = "processed"
+name = ["HOO.fits"]
