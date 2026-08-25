@@ -1,0 +1,54 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+description = "Blend a controllable fraction of the removed stars back into the VeraLux-stretched starless image."
+
+[[parameters]]
+name = "merge_star_stretch"
+default = 800.0
+description = "asinh stretch factor applied to the linear starmask before blending (higher = more stars visible)"
+
+[[stages]]
+name = "merge_stars"
+description = "Screen-blend the removed stars back into the stretched starless image"
+tool.name = "siril"
+
+# Base = hms_starless_<palette>.fits (VeraLux, already stretched).
+# Star layer = its sibling starmask_<palette>.fits (starnet, linear/unstretched),
+# autostretched into the same tonal range, scaled by merge_star_amount, then
+# screen-blended back over the starless image.
+script = '''
+    load "{input[0].full_paths[0]}"
+    save starless
+
+    load "{str(input[0].full_paths[0].parent / (input[0].full_paths[0].stem.replace('hms_starless_', 'starmask_') + '.fits'))}"
+    asinh -human {parameters.merge_star_stretch}
+    save stars
+
+    pm "1 - (1 - $starless$) * (1 - $stars$)"
+    save results
+
+    load results
+    save "{output.full_paths[0]}"
+    '''
+
+[[stages.inputs]]
+kind = "job"
+after = "veralux.*"
+multiplex = true # one task per upstream file, so multi-file stacks (e.g. SHO/HOO) each get merged
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+# Belt-and-suspenders: only operate on starless files (VeraLux already skips starmask).
+[[stages.inputs.requires]]
+kind = "filename"
+value = "hms_starless"
+mode = "include"
+
+[[stages.outputs]]
+kind = "processed"
+# merged_<palette>.fits, derived from hms_starless_<palette>.fits
+name = ["{input[0].full_paths[0].stem.replace('hms_starless_', 'merged_')}.fits"]

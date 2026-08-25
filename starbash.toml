@@ -62,6 +62,9 @@ dir = "palette/sho.toml"
 dir = "palette/hoo.toml"
 
 [[repo-ref]]
+dir = "post/merge_stars.toml"
+
+[[repo-ref]]
 dir = "common/thumbnail.toml"
 
 [[repo-ref]]
