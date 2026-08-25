@@ -12,7 +12,7 @@ description = "Options passed to the Siril 'starnet' command (e.g. -stretch, -up
 [[stages]]
 name = "starnet"
 description = "Star removal with StarNet via Siril"
-tool.name = "siril"
+tool.name = "starnet"
 
 # Siril's 'starnet' command writes starless_<stem>.fit and starmask_<stem>.fit into
 # the working directory (process_dir). We load each result by basename and re-save it
