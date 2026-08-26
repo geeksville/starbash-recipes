@@ -4,11 +4,6 @@ kind = "recipe"
 [recipe]
 description = "Generate an 'HOO' (bicolor) palette from HaOiii data. R=Ha, G/B=OIII, giving natural red nebulosity with teal/blue OIII."
 
-[[parameters]]
-name = "hoo_green_ha_weight"
-default = 0.0                                                                                   # Value used if not overriden
-description = "Ha contribution mixed into the green (OIII) channel (0..1); 0 = pure OIII green"
-
 [[stages]]
 
 name = "palette_hoo"
@@ -20,7 +15,7 @@ tool.name = "siril"
 # names so Siril PixelMath ($Ha$ / $OIII$) can reference them.
 #
 # The green line is a single template expression: green is OIII, optionally
-# blended with a little Ha (hoo_green_ha_weight) to tune the teal hue.
+# blended with a little Ha (green_ha_weight) to tune the teal hue.
 script = '''
     # Bring the noise-reduced Ha and OIII channels in under canonical names.
     # Rescale each to 0..1 so both channels enter rgbcomp on the same footing.
@@ -34,7 +29,7 @@ script = '''
     save OIII
 
     # Green channel: OIII, optionally blended with a little Ha to shift the hue.
-    pm "$Ha$ * {parameters.hoo_green_ha_weight} + $OIII$ * {1.0 - parameters.hoo_green_ha_weight}" -rescale 0.0 1.0
+    pm "$Ha$ * {parameters.green_ha_weight} + $OIII$ * {1.0 - parameters.green_ha_weight}" -rescale 0.0 1.0
     save Green
 
     # Merge into an HOO image: R=Ha, G=Green (OIII/blend), B=OIII
@@ -57,3 +52,9 @@ value = 2          # need at least both an Ha and an OIII channel
 [[stages.outputs]]
 kind = "processed"
 name = ["HOO.fits"]
+
+[[stages.parameters]]
+name = "green_ha_weight"
+default = 0.0                                                                                   # Value used if not overriden
+description = "Ha contribution mixed into the green (OIII) channel (0..1); 0 = pure OIII green"
+

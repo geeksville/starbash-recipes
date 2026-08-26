@@ -2,16 +2,6 @@
 [repo]
 kind = "recipe"
 
-[[parameters]]
-name = "thumbnail_size"
-default = 1920
-description = "Maximum dimension for the thumbnail image"
-
-[[parameters]]
-name = "thumbnail_quality"
-default = 95
-description = "Quality setting for the thumbnail image (1-100)"
-
 [recipe]
 author.email = "kevinh@geeksville.com"
 
@@ -24,8 +14,8 @@ tool.name = "siril"
 
 script = '''
     load "{input[0].full_paths[0]}"
-    resample -maxdim={parameters.thumbnail_size}
-    savejpg "{output.full_paths[0].with_suffix('')}" {parameters.thumbnail_quality}
+    resample -maxdim={parameters.size}
+    savejpg "{output.full_paths[0].with_suffix('')}" {parameters.quality}
     '''
 
 [[stages.inputs]]
@@ -49,4 +39,15 @@ kind = "processed"
 auto.suffix = ".jpg"
 
 # name = ["thumbnail.jpg"]
+
+
+[[stages.parameters]]
+name = "size"
+default = 1920
+description = "Maximum dimension for the thumbnail image"
+
+[[stages.parameters]]
+name = "quality"
+default = 95
+description = "Quality setting for the thumbnail image (1-100)"
 

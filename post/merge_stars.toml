@@ -4,11 +4,6 @@ kind = "recipe"
 [recipe]
 description = "Blend a controllable fraction of the removed stars back into the VeraLux-stretched starless image."
 
-[[parameters]]
-name = "merge_star_stretch"
-default = 800.0
-description = "asinh stretch factor applied to the linear starmask before blending (higher = more stars visible)"
-
 [[stages]]
 name = "merge_stars"
 description = "Screen-blend the removed stars back into the stretched starless image"
@@ -23,7 +18,7 @@ script = '''
     save starless
 
     load "{str(input[0].full_paths[0].parent / (input[0].full_paths[0].stem.replace('hms_starless_', 'starmask_') + '.fits'))}"
-    asinh -human {parameters.merge_star_stretch}
+    asinh -human {parameters.stretch}
     save stars
 
     pm "1 - (1 - $starless$) * (1 - $stars$)"
@@ -52,3 +47,9 @@ mode = "include"
 kind = "processed"
 # merged_<palette>.fits, derived from hms_starless_<palette>.fits
 name = ["{input[0].full_paths[0].stem.replace('hms_starless_', 'merged_')}.fits"]
+
+[[stages.parameters]]
+name = "stretch"
+default = 800.0
+description = "asinh stretch factor applied to the linear starmask before blending (higher = more stars visible)"
+

@@ -1,11 +1,6 @@
 [repo]
 kind = "recipe"
 
-[[parameters]]
-name = "light_options"
-default = "-cfa -equalize_cfa" # Value used if not overriden
-description = "Light frame calibration options for OSC cameras"
-
 [[stages]]
 
 name = "light_no_darks"
@@ -24,7 +19,7 @@ script = '''
     cd {process_dir}
 
     # Calibrate the light frames using master bias and flat
-    calibrate {light_base} {parameters.light_options}
+    calibrate {light_base} {parameters.options}
 
     # Remove background gradient on a per-frame basis (generates bkg_pp_light.seq)
     seqsubsky pp_{light_base} 1
@@ -72,3 +67,9 @@ kind = "job"
 # Note: this example generates two output files - one for Ha and one for OIII.  But normally name can be either a string or a list of
 # strings.
 name = ["bkg_pp_{light_base}_.seq"]
+
+[[stages.parameters]]
+name = "options"
+default = "-cfa -equalize_cfa" # Value used if not overriden
+description = "Light frame calibration options for OSC cameras"
+

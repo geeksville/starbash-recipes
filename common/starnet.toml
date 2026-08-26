@@ -4,11 +4,6 @@ kind = "recipe"
 [recipe]
 description = "Remove stars from an image with StarNet (via Siril), producing a starless image and a star mask."
 
-[[parameters]]
-name = "starnet_params"
-default = "-stretch"
-description = "Options passed to the Siril 'starnet' command (e.g. -stretch, -upscale, -stride=value)"
-
 [[stages]]
 name = "starnet"
 description = "Star removal with StarNet via Siril"
@@ -19,7 +14,7 @@ tool.name = "starnet"
 # to the declared output paths.
 script = '''
     load "{input[0].full_paths[0]}"
-    starnet {parameters.starnet_params}
+    starnet {parameters.params}
     load "starless_{input[0].full_paths[0].stem}.fit"
     save "{output.full_paths[0]}"
     load "starmask_{input[0].full_paths[0].stem}.fit"
@@ -43,3 +38,9 @@ name = [
     "starless_{input[0].full_paths[0].stem}.fits",
     "starmask_{input[0].full_paths[0].stem}.fits",
 ]
+
+[[stages.parameters]]
+name = "params"
+default = "-stretch"
+description = "Options passed to the Siril 'starnet' command (e.g. -stretch, -upscale, -stride=value)"
+

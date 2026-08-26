@@ -1,16 +1,6 @@
 [repo]
 kind = "recipe"
 
-[[parameters]]
-name = "bxt_sharpen_stars"
-default = 0.5 # Value used if not overriden
-description = "BlurXTerminator stellar sharpening strength (0..1)"
-
-[[parameters]]
-name = "bxt_sharpen_nonstellar"
-default = 0.5 # Value used if not overriden
-description = "BlurXTerminator non-stellar sharpening strength (0..1)"
-
 [[stages]]
 
 name = "blur_exterminator"
@@ -24,9 +14,9 @@ script = [
     "--output",
     "{output.full_paths[0]}",
     "--sharpen-stars",
-    "{parameters.bxt_sharpen_stars}",
+    "{parameters.sharpen_stars}",
     "--sharpen-nonstellar",
-    "{parameters.bxt_sharpen_nonstellar}"
+    "{parameters.sharpen_nonstellar}"
 ]
 
 [[stages.inputs]]
@@ -42,3 +32,13 @@ value = 1          # If we don't have any valid inputs, reject this stage from c
 [[stages.outputs]]
 kind = "processed"
 auto.prefix = "bx_"
+[[stages.parameters]]
+name = "sharpen_stars"
+default = 0.5 # Value used if not overriden
+description = "BlurXTerminator stellar sharpening strength (0..1)"
+
+[[stages.parameters]]
+name = "sharpen_nonstellar"
+default = 0.5 # Value used if not overriden
+description = "BlurXTerminator non-stellar sharpening strength (0..1)"
+

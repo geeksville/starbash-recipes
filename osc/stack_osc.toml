@@ -3,27 +3,6 @@
 kind = "recipe"
 
 # FIXME - share these options via the repo import mechanism, instead of all this copy-and-paste...
-[[parameters]]
-name = "stack_registration"
-default = "rej g 0.3 0.05" # Value used if not overriden
-description = "Registration options for Siril stacking"
-
-[[parameters]]
-name = "stack_filtering"
-default = "-filter-wfwhm=3k" # Value used if not overriden
-description = "Filtering options for Siril (controls which frames are accepted for stacking)"
-
-[[parameters]]
-name = "stack_drizzle"
-# note:  drizzle is only applicable for mono / CFA sequences, cannot drizzle color sequences.
-default = "" # "-drizzle" # Default to no drizzle
-description = "Drizzle option for Siril stacking, set to empty string to disable, or -drizzle to enable"
-
-[[parameters]]
-name = "stack_options"
-default = "-norm=addscale -output_norm -rgb_equal -32b" # Value used if not overriden
-description = "Misc options for Siril stacking"
-
 [[stages]]
 
 name = "stack_osc"
@@ -46,9 +25,9 @@ script = '''
     register in -2pass
 
     # because we are using -2pass we must complete the registration here before stacking
-    seqapplyreg in {parameters.stack_drizzle}
+    seqapplyreg in {parameters.drizzle}
 
-    stack r_in {parameters.stack_registration} {parameters.stack_filtering} {parameters.stack_options} -out=results
+    stack r_in {parameters.registration} {parameters.filtering} {parameters.options} -out=results
 
     # and flip if required
     mirrorx_single results
@@ -70,3 +49,25 @@ after = "light.*" # the name of the step we want to follow
 # see above for a rule that automatically populates the results_dir shorthand
 kind = "processed"
 name = ["stacked.fits"]
+
+[[stages.parameters]]
+name = "registration"
+default = "rej g 0.3 0.05" # Value used if not overriden
+description = "Registration options for Siril stacking"
+
+[[stages.parameters]]
+name = "filtering"
+default = "-filter-wfwhm=3k" # Value used if not overriden
+description = "Filtering options for Siril (controls which frames are accepted for stacking)"
+
+[[stages.parameters]]
+name = "drizzle"
+# note:  drizzle is only applicable for mono / CFA sequences, cannot drizzle color sequences.
+default = "" # "-drizzle" # Default to no drizzle
+description = "Drizzle option for Siril stacking, set to empty string to disable, or -drizzle to enable"
+
+[[stages.parameters]]
+name = "options"
+default = "-norm=addscale -output_norm -rgb_equal -32b" # Value used if not overriden
+description = "Misc options for Siril stacking"
+

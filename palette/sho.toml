@@ -4,16 +4,6 @@ kind = "recipe"
 [recipe]
 description = "Generate an 'SHO' (golden/blue Hubble palette) from HaOiii (and optionally SiiOiii) data. Green is the real Sii channel when present, otherwise a synthetic Ha/OIII blend."
 
-[[parameters]]
-name = "sho_ha_weight"
-default = 0.4                                                              # Value used if not overriden
-description = "Ha contribution when synthesizing the green channel (0..1)"
-
-[[parameters]]
-name = "sho_oiii_weight"
-default = 0.6                                                                # Value used if not overriden
-description = "OIII contribution when synthesizing the green channel (0..1)"
-
 [[stages]]
 
 name = "palette_sho"
@@ -40,7 +30,7 @@ script = '''
     save OIII
 
     # Green channel: use the real Sii channel if present, otherwise synthesize one from Ha+OIII
-    {'load ' + [str(p) for p in input[0].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input[0].full_paths if "_Sii" in str(p)] else 'pm "$Ha$ * ' + str(parameters.sho_ha_weight) + ' + $OIII$ * ' + str(parameters.sho_oiii_weight) + '" -rescale 0.0 1.0'}
+    {'load ' + [str(p) for p in input[0].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input[0].full_paths if "_Sii" in str(p)] else 'pm "$Ha$ * ' + str(parameters.ha_weight) + ' + $OIII$ * ' + str(parameters.oiii_weight) + '" -rescale 0.0 1.0'}
     save SynGreen
 
     # Merge into an SHO image: R=Ha, G=SynGreen (Sii or synthetic), B=OIII
@@ -71,3 +61,14 @@ value = 2          # need at least both an Ha and an OIII channel
 [[stages.outputs]]
 kind = "processed"
 name = ["SHO.fits"]
+
+[[stages.parameters]]
+name = "ha_weight"
+default = 0.4                                                              # Value used if not overriden
+description = "Ha contribution when synthesizing the green channel (0..1)"
+
+[[stages.parameters]]
+name = "oiii_weight"
+default = 0.6                                                                # Value used if not overriden
+description = "OIII contribution when synthesizing the green channel (0..1)"
+
