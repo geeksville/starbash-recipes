@@ -58,51 +58,52 @@ description = "NoiseXTerminator overall denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_intensity"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator intensity denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_color"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator chrominance denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_hf"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator high-frequency (small scale) denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_lf"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator low-frequency (large scale) denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_intensity_hf"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator high-frequency intensity denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_intensity_lf"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator low-frequency intensity denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_color_hf"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator high-frequency color denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "denoise_color_lf"
-default = 0.90
+#default = 0.90
 description = "NoiseXTerminator low-frequency color denoise strength (0..1)"
 
 [[stages.parameters]]
 name = "frequency_scale"
-default = 5.0
+#default = 5.0
 description = "Pixel scale of the low/high frequency transition band (1..100)"
 
 [[stages.parameters]]
 name = "iterations"
+# default to 2 because it looks much better
 default = 2
 description = "Number of denoising iterations (1..5)"
 
