@@ -52,7 +52,12 @@ name = ["stacked.fits"]
 
 [[stages.parameters]]
 name = "registration"
-default = "rej g 0.3 0.05" # Value used if not overriden
+# Winsorized Sigma Clipping (w 3 3) with Average rejection to nuke airplane/satellite trails.
+# Trail pixels are bright statistical outliers vs same pixel in other frames, so sigma high 3.0
+# rejects them and averages dark sky from other frames into those spots. Gold standard for >15-20 frames.
+# If faint ghost survives, lower sigma high to 2.5. Previous GESDT method kept for reference:
+# "rej g 0.3 0.05"
+default = "rej w 3 3" # Value used if not overriden
 description = "Registration options for Siril stacking"
 
 [[stages.parameters]]
