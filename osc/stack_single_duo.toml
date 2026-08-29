@@ -53,3 +53,12 @@ name = [
     "stacked_Ha.fits",
     "stacked_OIII.fits"
 ]
+
+# cant declare this yet till doc/design/bugs/output-uglyness.md is fixed
+#[[stages.outputs]]
+# the registered frame data will be in these files. possibly useful for debugging or further processing.  Note that these are not the final outputs of the recipe, but they are useful for debugging and further processing.
+#kind = "job"
+#name = [
+#    "r_all_r_Ha_bkg_pp_light_.seq", 
+#    "r_all_r_OIII_bkg_pp_light_.seq"
+#    ]
