@@ -20,7 +20,7 @@ script = '''
 
 [[stages.inputs]]
 kind = "job"
-after = "merge_stars.*" # the name of the step we want to follow
+after = "(merge_stars|veralux).*" # the name of the step we want to follow
 multiplex = true # one task per upstream file, so multi-file stacks (e.g. Ha/OIII) each get a thumbnail
 
 [[stages.inputs.requires]]

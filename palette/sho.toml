@@ -58,6 +58,12 @@ after = "noise_exterminator"
 kind = "min_count"
 value = 2          # need at least both an Ha and an OIII channel
 
+# we only make sense if these filters were used
+[[stages.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = ["HaOiii"]
+
 [[stages.outputs]]
 kind = "processed"
 name = ["SHO.fits"]
@@ -71,4 +77,3 @@ description = "Ha contribution when synthesizing the green channel (0..1)"
 name = "oiii_weight"
 default = 0.6                                                                # Value used if not overriden
 description = "OIII contribution when synthesizing the green channel (0..1)"
-
