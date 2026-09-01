@@ -25,9 +25,12 @@ script = '''
     register in -2pass
 
     # because we are using -2pass we must complete the registration here before stacking
-    seqapplyreg in {parameters.drizzle}
+    # we use framing=max/min/cog so that registration is not wrt the first frame
+    # note: it is better to do filtering at this stage than when stacking,
+    # because it keeps a record of which frames were dropped
+    seqapplyreg in {parameters.drizzle} {parameters.filtering} -framing={parameters.framing}
 
-    stack r_in {parameters.registration} {parameters.filtering} {parameters.options} -out=results
+    stack r_in {parameters.registration} {parameters.options} -out=results
 
     # and flip if required
     mirrorx_single results
@@ -62,7 +65,8 @@ description = "Registration options for Siril stacking"
 
 [[stages.parameters]]
 name = "filtering"
-default = "-filter-wfwhm=3k" # Value used if not overriden
+#default = "-filter-wfwhm=3k" # Value used if not overriden
+default = "-filter-wfwhm=80% -filter-round=80% -filter-bkg=80%" # better defaults
 description = "Filtering options for Siril (controls which frames are accepted for stacking)"
 
 [[stages.parameters]]
@@ -76,3 +80,7 @@ name = "options"
 default = "-norm=addscale -output_norm -rgb_equal -32b" # Value used if not overriden
 description = "Misc options for Siril stacking"
 
+[[stages.parameters]]
+name = "framing"
+default = "cog" # Value used if not overriden
+description = "Framing option for Siril stacking"
