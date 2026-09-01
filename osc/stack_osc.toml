@@ -82,5 +82,5 @@ description = "Misc options for Siril stacking"
 
 [[stages.parameters]]
 name = "framing"
-default = "cog" # Value used if not overriden
+default = "max" # Value used if not overriden
 description = "Framing option for Siril stacking"

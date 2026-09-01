@@ -1,0 +1,47 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+description = "Crop and rotate each stacked FITS output"
+
+[[stages]]
+name = "crop"
+description = "Crop and rotate stacked FITS outputs"
+tool.name = "python"
+
+script = '''
+    from starbash.recipes import crop
+    crop.logger = logger
+    crop.context = context
+    input_info = context["input"][0]
+    output_info = context["output"]
+    crop.crop_files(
+        [input_info.full_paths[0]],
+        [output_info.full_paths[0]],
+        crop_percent=context["parameters"].crop_percent,
+        rotate_deg=context["parameters"].rotate_deg,
+    )
+    '''
+
+[[stages.inputs]]
+kind = "job"
+after = "stack_.*"
+multiplex = true
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+[[stages.outputs]]
+kind = "processed"
+auto.prefix = "crop_"
+
+[[stages.parameters]]
+name = "crop_percent"
+default = 80
+description = "Percentage of each image dimension to retain, centered"
+
+[[stages.parameters]]
+name = "rotate_deg"
+default = 0
+description = "Rotation angle in degrees after cropping"
