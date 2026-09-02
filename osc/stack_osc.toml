@@ -22,7 +22,7 @@ script = '''
     cd ..
 
     # We use -2pass to select the best possible reference frame for others to register against
-    register in -2pass
+    register in -2pass {parameters.filtering}
 
     # because we are using -2pass we must complete the registration here before stacking
     # we use framing=max/min/cog so that registration is not wrt the first frame
@@ -82,5 +82,5 @@ description = "Misc options for Siril stacking"
 
 [[stages.parameters]]
 name = "framing"
-default = "max" # Value used if not overriden
-description = "Framing option for Siril stacking"
+default = "cog" # Value used if not overriden
+description = "Framing option for Siril stacking min/max/cog are recommended."

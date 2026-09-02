@@ -1,4 +1,3 @@
-
 [repo]
 kind = "recipe"
 
@@ -42,6 +41,21 @@ value = ["HaOiii"]
 [[stages.inputs.requires]]
 kind = "min_count"
 value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
+
+[[stages.parameters]]
+name = "drizzle"
+default = ""
+description = "Drizzle option for Siril seqapplyreg, set to empty string to disable, or -drizzle to enable"
+
+[[stages.parameters]]
+name = "framing"
+default = "cog" # Value used if not overriden
+description = "Framing option for Siril seqapplyreg min/max/cog are recommended."
+
+[[stages.parameters]]
+name = "filtering"
+default = "-filter-wfwhm=80% -filter-round=80% -filter-bkg=80%" # Value used if not overriden
+description = "Filtering options for Siril seqapplyreg (controls which frames are accepted for stacking)"
 
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them
