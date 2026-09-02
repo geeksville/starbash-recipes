@@ -74,7 +74,7 @@ description = "Framing option for Siril seqapplyreg min/max/cog are recommended.
 
 [[stages.parameters]]
 name = "filtering"
-default = "" # Value used if not overriden -filter-wfwhm=80%
+default = "-filter-wfwhm=80% -filter-round=80% -filter-bkg=80%" # Value used if not overriden -filter-wfwhm=80%
 description = "Filtering options for Siril seqapplyreg (controls which frames are accepted for stacking). add -filter-round=80% -filter-bkg=80% for better results, but possibly too much rejection."
 
 # Based on the following definitions in the stage toml file...
