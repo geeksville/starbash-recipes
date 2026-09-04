@@ -18,7 +18,6 @@ script = '''
     crop.crop_files(
         [input_info.full_paths[0]],
         [output_info.full_paths[0]],
-        crop_percent=context["parameters"].crop_percent,
         rotate_deg=context["parameters"].rotate_deg,
         crop_width=context["parameters"].crop_width,
         crop_height=context["parameters"].crop_height,
@@ -39,17 +38,14 @@ kind = "processed"
 auto.prefix = "crop_"
 
 [[stages.parameters]]
-name = "crop_percent"
-default = 80
-description = "Percentage of each image dimension to retain, centered"
-
-[[stages.parameters]]
 name = "crop_width"
-description = "Maximum crop width in pixels; if omitted, percentage mode is used"
+default = "80%"
+description = "Maximum crop width, in pixels or as a percentage of the source width"
 
 [[stages.parameters]]
 name = "crop_height"
-description = "Maximum crop height in pixels; if omitted, percentage mode is used"
+default = "80%"
+description = "Maximum crop height, in pixels or as a percentage of the source height"
 
 [[stages.parameters]]
 name = "rotate_deg"
