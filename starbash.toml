@@ -74,6 +74,6 @@ dir = "common/thumbnail.toml"
 dir = "common/starnet.toml"
 
 [[repo-ref]]
-url = "https://raw.githubusercontent.com/geeksville/siril-scripts/refs/heads/main/processing/VeraLux_HyperMetric_Stretch.toml"
+#url = "https://raw.githubusercontent.com/geeksville/siril-scripts/refs/heads/main/processing/VeraLux_HyperMetric_Stretch.toml"
 # using local copy for testing (swap the two urls to use the published remote)
-#url = "file:///workspaces/starbash/siril-scripts/processing/VeraLux_HyperMetric_Stretch.toml"
+url = "file:///workspaces/starbash/siril-scripts/processing/VeraLux_HyperMetric_Stretch.toml"

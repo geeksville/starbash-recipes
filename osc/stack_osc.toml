@@ -65,8 +65,8 @@ description = "Registration options for Siril stacking"
 
 [[stages.parameters]]
 name = "filtering"
-default = "-filter-wfwhm=80% -filter-round=80% -filter-bkg=80%" # better defaults
-description = "Filtering options for Siril (controls which frames are accepted for stacking)"
+default = "-filter-wfwhm=80%" # better defaults
+description = "Filtering options for Siril (controls which frames are accepted for stacking) add -filter-round=80% -filter-bkg=80% for best results"
 
 [[stages.parameters]]
 name = "drizzle"
@@ -81,5 +81,5 @@ description = "Misc options for Siril stacking"
 
 [[stages.parameters]]
 name = "framing"
-default = "cog" # Value used if not overriden
-description = "Framing option for Siril stacking min/max/cog are recommended."
+default = "max" # Value used if not overriden
+description = "Framing option for Siril stacking min/max/cog are recommended. cog requires all images to have same dimensions, so min/max is a safer default."

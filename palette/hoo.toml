@@ -19,11 +19,11 @@ tool.name = "siril"
 script = '''
     # Bring the noise-reduced Ha and OIII channels in under canonical names.
     # Rescale each to 0..1 so both channels enter rgbcomp on the same footing.
-    load {[str(p) for p in input[0].full_paths if "_Ha" in str(p)][0]}
+    load {[str(p) for p in input["ha"].full_paths if "_Ha" in str(p)][0]}
     save Ha
     pm "$Ha$" -rescale 0.0 1.0
     save Ha
-    load {[str(p) for p in input[0].full_paths if "_OIII" in str(p)][0]}
+    load {[str(p) for p in input["oiii"].full_paths if "_OIII" in str(p)][0]}
     save OIII
     pm "$OIII$" -rescale 0.0 1.0
     save OIII
@@ -42,18 +42,42 @@ script = '''
 
 [[stages.inputs]]
 kind = "job"
-# Run on the noise-reduced channels produced by the rc-astro noise_exterminator stage.
+name = "ha"
+# Keep the required Ha channel in its own input group.  Its min_count is
+# evaluated for this group, not against the one-file multiplexed noise task.
 after = "noise_exterminator"
 
 [[stages.inputs.requires]]
-kind = "min_count"
-value = 2          # need at least both an Ha and an OIII channel
+kind = "metadata"
+name = "filter"
+value = ["HaOiii", "SiiOiii"]
 
-# we only make sense if these filters were used
+[[stages.inputs.requires]]
+kind = "filename"
+value = "_Ha"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+[[stages.inputs]]
+kind = "job"
+name = "oiii"
+# OIII is required in a separate input group for the same reason.
+after = "noise_exterminator"
+
 [[stages.inputs.requires]]
 kind = "metadata"
 name = "filter"
-value = ["HaOiii"]
+value = ["HaOiii", "SiiOiii"]
+
+[[stages.inputs.requires]]
+kind = "filename"
+value = "_OIII"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
 
 [[stages.outputs]]
 kind = "processed"
