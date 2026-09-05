@@ -32,6 +32,11 @@ script = '''
     # Green channel: use the real Sii channel if present, otherwise synthesize one from Ha+OIII
     {'load ' + [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)] else 'pm "$Ha$ * ' + str(parameters.ha_weight) + ' + $OIII$ * ' + str(parameters.oiii_weight) + '" -rescale 0.0 1.0'}
     save SynGreen
+    # Rescale Sii to 0..1 like Ha/OIII above. Without this the raw Sii
+    # background (~5e-4) is ~20x brighter than the rescaled Ha/OIII
+    # backgrounds (~2e-5) and the composite goes bright green.
+    pm "$SynGreen$" -rescale 0.0 1.0
+    save SynGreen
 
     # Merge into an SHO image: R=Ha, G=SynGreen (Sii or synthetic), B=OIII
     rgbcomp Ha SynGreen OIII -out=results
