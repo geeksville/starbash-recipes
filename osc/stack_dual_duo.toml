@@ -64,7 +64,7 @@ value = 1          # At this point if we don't have any valid inputs, reject thi
 
 [[stages.parameters]]
 name = "drizzle"
-default = ""
+default = "-drizzle"
 description = "Drizzle option for Siril seqapplyreg, set to empty string to disable, or -drizzle to enable"
 
 [[stages.parameters]]
