@@ -1,0 +1,65 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+author.name = "Starbash Developers"
+
+# --- basic OSC (stack_osc registers "in" -> in_.seq) ---
+
+[[stages]]
+name = "report_stack_osc"
+description = "Record per-frame registration metrics for basic OSC stacks"
+tool.name = "python"
+priority = 340
+run_by_default = true
+
+script = '''
+    from starbash.recipes import report_registration
+    report_registration.logger = logger
+    report_registration.context = context
+    report_registration.update_from_params()
+    '''
+
+[[stages.inputs]]
+kind = "job"
+name = "frames"
+after = "stack_osc"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+[[stages.parameters]]
+name = "seq_basename"
+default = "r_osc"
+description = "Registered sequence basename in process_dir (without _.seq suffix). stack_osc stacks r_osc, so r_osc_.seq carries the registration rows."
+
+# --- duo (either stack_single_duo or stack_dual_duo merges to all_ha) ---
+
+[[stages]]
+name = "report_duo"
+description = "Record per-frame registration metrics for duo stacks"
+tool.name = "python"
+priority = 340
+run_by_default = true
+
+script = '''
+    from starbash.recipes import report_registration
+    report_registration.logger = logger
+    report_registration.context = context
+    report_registration.update_from_params()
+    '''
+
+[[stages.inputs]]
+kind = "job"
+name = "frames"
+after = "stack_(single|dual)_duo"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+[[stages.parameters]]
+name = "seq_basename"
+default = "r_all_ha"
+description = "Registered sequence basename in process_dir (without _.seq suffix)"

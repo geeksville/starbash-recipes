@@ -10,27 +10,30 @@ description = "Basic OSC stacking (no fancy narrowband extraction)"
 tool.name = "siril"
 priority = 310
 
-# delete foo_ from the working dir
-temporaries = ["in*", "r_in*"]
+# Delete the (large) merged/registered frames after reporting. The '*.fit*'
+# suffix matches both .fit and .fits and deliberately does NOT match the
+# '.seq' files, so the tracked 'r_osc_.seq' output survives (deleting it would
+# make doit see stack_osc as out-of-date and re-run the whole stack next time).
+temporaries = ["osc*.fit*", "r_osc*.fit*"]
 
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...
 script = '''
     # create a seq from the input files
     cd in
-    convert in -debayer -out=..
+    convert osc -debayer -out=..
     cd ..
 
     # We use -2pass to select the best possible reference frame for others to register against
-    register in -2pass 
+    register osc -2pass 
 
     # because we are using -2pass we must complete the registration here before stacking
     # we use framing=max/min/cog so that registration is not wrt the first frame
     # note: it is better to do filtering at this stage than when stacking,
     # because it keeps a record of which frames were dropped
-    seqapplyreg in {parameters.drizzle} {parameters.filtering} -framing={parameters.framing}
+    seqapplyreg osc {parameters.drizzle} {parameters.filtering} -framing={parameters.framing}
 
-    stack r_in {parameters.registration} {parameters.options} -out=results
+    stack r_osc {parameters.registration} {parameters.options} -out=results
 
     # and flip if required
     mirrorx_single results
@@ -47,6 +50,20 @@ after = "light.*" # the name of the step we want to follow
 
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them
+#
+# IMPORTANT: the registered sequence is declared FIRST and the processed
+# output LAST. _resolve_output_files() overwrites context["output"] for each
+# block, so the final block is what the script's save "{output.full_paths[0]}"
+# sees. Keeping 'processed' last means that still resolves to stacked.fits.
+[[stages.outputs]]
+# Declare the registered sequence as a tracked job output. This keeps it alive
+# in the shared process_dir until report_stack_osc consumes it, and lets doit
+# regenerate it (by re-running this stage) if it is ever missing. Without this,
+# when stacked.fits is up-to-date the stage is skipped and the (previously
+# cleaned-up) .seq would never be recreated for the report stage to read.
+kind = "job"
+name = ["r_osc_.seq"]
+
 [[stages.outputs]]
 # the 'processed' output points to a directory in the 'processed' repo but named based on the target we are trying to build for
 # see above for a rule that automatically populates the results_dir shorthand

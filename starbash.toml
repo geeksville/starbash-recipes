@@ -41,6 +41,9 @@ dir = "osc/stack_single_duo.toml"
 dir = "osc/stack_osc.toml"
 
 [[repo-ref]]
+dir = "osc/report_registration.toml"
+
+[[repo-ref]]
 dir = "common/crop.toml"
 
 [[repo-ref]]
