@@ -77,6 +77,19 @@ name = "filtering"
 default = "-filter-wfwhm=80% -filter-round=80% -filter-bkg=80%" # Value used if not overriden -filter-wfwhm=80%
 description = "Filtering options for Siril seqapplyreg (controls which frames are accepted for stacking). add -filter-round=80% -filter-bkg=80% for better results, but possibly too much rejection."
 
+# IMPORTANT: the registered sequence is declared FIRST and the processed
+# output LAST. _resolve_output_files() overwrites context["output"] for each
+# block, so the final block is what the script's save "{output.full_paths[0]}"
+# sees. Keeping 'processed' last means that still resolves to stacked.fits.
+[[stages.outputs]]
+# Declare the registered sequence as a tracked job output. This keeps it alive
+# in the shared process_dir until report_stack_osc consumes it, and lets doit
+# regenerate it (by re-running this stage) if it is ever missing. Without this,
+# when stacked.fits is up-to-date the stage is skipped and the (previously
+# cleaned-up) .seq would never be recreated for the report stage to read.
+kind = "job"
+name = ["r_all_ha_.seq"]
+
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them
 [[stages.outputs]]
