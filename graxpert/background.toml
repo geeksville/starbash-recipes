@@ -44,12 +44,6 @@ name = "smoothing_option"
 default = 0.5 # Value used if not overriden
 description = "Smoothing option for graxpert background extraction"
 
-# If overriden, in the user prefs or the local starbash.toml file for a target, there will be something like:
-# This section will be generated in the starbash.toml as a comment if this recipe is used
-#[[overrides]]
-#name = "smoothing_option" # Smoothing option for graxpert background extraction
-#value = 0.7
-
 [[stages.parameters]]
 name = "ai_version"
 default = "1.0.1"

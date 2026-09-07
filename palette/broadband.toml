@@ -1,0 +1,38 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+description = "Pass a broadband (non-narrowband) stack through unchanged so the common star-removal and stretch pipeline applies."
+
+[[stages]]
+
+name = "palette_broadband"
+description = "Broadband palette: load the denoised broadband stack and save it as broadband.fits"
+tool.name = "siril"
+
+# Broadband data has no Ha/OIII/SII channels to combine. We just load the
+# noise-reduced stack and re-save it under a canonical name so the downstream
+# common stages (starnet -> veralux -> merge_stars -> thumbnail) have a palette
+# output to consume.
+script = '''
+    load "{input[0].full_paths[0]}"
+    save "{output.full_paths[0]}"
+    '''
+
+[[stages.inputs]]
+kind = "job"
+after = "noise_exterminator"
+
+[[stages.inputs.requires]]
+kind = "metadata"
+name = "filter"
+value = ["HaOiii", "SiiOiii"]
+invert = true
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+[[stages.outputs]]
+kind = "processed"
+name = ["broadband.fits"]

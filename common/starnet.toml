@@ -23,7 +23,7 @@ script = '''
 
 [[stages.inputs]]
 kind = "job"
-after = "palette.*" # run on the SHO palette output
+after = "palette.*" # run on the palette output
 multiplex = true
 
 [[stages.inputs.requires]]
@@ -43,4 +43,3 @@ name = [
 name = "params"
 default = "-stretch"
 description = "Options passed to the Siril 'starnet' command (e.g. -stretch, -upscale, -stride=value)"
-
