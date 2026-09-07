@@ -20,7 +20,7 @@ script = '''
 
 [[stages.inputs]]
 kind = "job"
-after = "(merge_stars|veralux).*" # the name of the step we want to follow
+after = "(merge_stars).*" # the name of the step we want to follow
 multiplex = true # one task per upstream file, so multi-file stacks (e.g. Ha/OIII) each get a thumbnail
 
 [[stages.inputs.requires]]
@@ -43,11 +43,11 @@ auto.suffix = ".jpg"
 
 [[stages.parameters]]
 name = "size"
-default = 1920
+default = 1600 # cloudynight: 1600, astrobin: 2048, astrobin thumbnail: 512
 description = "Maximum dimension for the thumbnail image"
 
 [[stages.parameters]]
 name = "quality"
-default = 95
+default = 95 # cloudynight: max 490kb
 description = "Quality setting for the thumbnail image (1-100)"
 

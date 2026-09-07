@@ -50,6 +50,6 @@ name = ["{input[0].full_paths[0].stem.replace('hms_starless_', 'merged_')}.fits"
 
 [[stages.parameters]]
 name = "stretch"
-default = 800.0
+default = 1000.0
 description = "asinh stretch factor applied to the linear starmask before blending (higher = more stars visible)"
 
