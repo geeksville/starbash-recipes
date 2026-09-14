@@ -53,7 +53,7 @@ dir = "graxpert/background.toml"
 dir = "graxpert/deconv-obj.toml"
 
 [[repo-ref]]
-dir = "graxpert/denoise.toml"
+dir = "graxpert/grax-denoise.toml"
 
 [[repo-ref]]
 dir = "rc-astro/blur-exterminator.toml"

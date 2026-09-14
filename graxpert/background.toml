@@ -6,6 +6,7 @@ kind = "recipe"
 
 name = "background"
 description = "Do background subtraction with graxpert"
+role = "background" 
 tool.name = "graxpert"
 tool.parameters = { ai_version = "{parameters.ai_version}", smoothing_option = "{parameters.smoothing_option}" }
 

@@ -6,7 +6,8 @@ kind = "recipe"
 
 name = "deconv-obj"
 description = "Do object deconvolution with graxpert"
-exclude_by_default = true # default to excluding this stage unless enabled via starbash.toml - it is very slow
+role = "deblur" # one implementation of the 'deblur' step; rc-astro's blur_exterminator wins when installed
+priority = 300
 
 tool.name = "graxpert"
 # other options: obj-devconv 1.0.1, stars decov 1.0.0, denoise 3.0.2

@@ -9,6 +9,7 @@ description = "Generate an 'SHO' (golden/blue Hubble palette) from HaOiii (and o
 name = "palette_sho"
 description = "SHO palette: R=Ha, G=Sii-or-synthetic, B=OIII"
 tool.name = "siril"
+role = "palette"
 
 # Channels are selected out of the prior stage outputs by filename suffix
 # (_Ha / _OIII / _Sii). We load them by absolute path and re-save under canonical
@@ -60,7 +61,7 @@ name = "ha"
 # The Ha channel is required.  Keep this requirement on its own input block so
 # min_count applies to this channel rather than to each multiplexed upstream
 # task (which contains only one channel).
-after = "noise_exterminator"
+after = "denoise" # the role name: whichever denoiser will actually run
 
 [[stages.inputs.requires]]
 kind = "metadata"
@@ -79,7 +80,7 @@ value = 1
 kind = "job"
 name = "oiii"
 # OIII is also required, but has its own min_count requirement.
-after = "noise_exterminator"
+after = "denoise" # the role name: whichever denoiser will actually run
 
 [[stages.inputs.requires]]
 kind = "metadata"
@@ -99,7 +100,7 @@ kind = "job"
 name = "sii"
 # Sii is optional: without min_count, an absent matching input is represented
 # by an empty FileInfo and the script synthesizes green instead.
-after = "noise_exterminator"
+after = "denoise" # the role name: whichever denoiser will actually run
 optional = true
 
 [[stages.inputs.requires]]

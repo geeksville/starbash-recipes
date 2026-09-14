@@ -9,6 +9,7 @@ description = "Generate an 'HOO' (bicolor) palette from HaOiii data. R=Ha, G/B=O
 name = "palette_hoo"
 description = "HOO palette: R=Ha, G=OIII (optionally blended with Ha), B=OIII"
 tool.name = "siril"
+role = "palette" 
 
 # Channels are selected out of the prior stage outputs by filename suffix
 # (_Ha / _OIII). We load them by absolute path and re-save under canonical
@@ -45,7 +46,7 @@ kind = "job"
 name = "ha"
 # Keep the required Ha channel in its own input group.  Its min_count is
 # evaluated for this group, not against the one-file multiplexed noise task.
-after = "noise_exterminator"
+after = "denoise" # the role name: whichever denoiser will actually run
 
 [[stages.inputs.requires]]
 kind = "metadata"
@@ -64,7 +65,7 @@ value = 1
 kind = "job"
 name = "oiii"
 # OIII is required in a separate input group for the same reason.
-after = "noise_exterminator"
+after = "denoise" # the role name: whichever denoiser will actually run
 
 [[stages.inputs.requires]]
 kind = "metadata"

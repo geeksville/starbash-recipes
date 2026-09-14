@@ -5,6 +5,8 @@ kind = "recipe"
 
 name = "blur_exterminator"
 description = "Sharpen/deconvolve with BlurXTerminator (rc-astro bxt)"
+role = "deblur" # preferred implementation of the 'deblur' step (beats graxpert's deconv-obj)
+priority = 350
 tool.name = "rc-astro"
 
 # Note: --json is injected automatically by RCAstroTool, do not add it here.

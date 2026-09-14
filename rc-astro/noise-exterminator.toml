@@ -5,6 +5,8 @@ kind = "recipe"
 
 name = "noise_exterminator"
 description = "Denoise with NoiseXTerminator (rc-astro nxt)"
+role = "denoise" # preferred implementation of the 'denoise' step (beats graxpert's denoise)
+priority = 350
 tool.name = "rc-astro"
 
 # Note: --json is injected automatically by RCAstroTool, do not add it here.

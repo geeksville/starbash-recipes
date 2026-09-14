@@ -9,6 +9,7 @@ description = "Pass a broadband (non-narrowband) stack through unchanged so the 
 name = "palette_broadband"
 description = "Broadband palette: load the denoised broadband stack and save it as broadband.fits"
 tool.name = "siril"
+role = "palette" 
 
 # Broadband data has no Ha/OIII/SII channels to combine. We just load the
 # noise-reduced stack and re-save it under a canonical name so the downstream
@@ -21,7 +22,7 @@ script = '''
 
 [[stages.inputs]]
 kind = "job"
-after = "noise_exterminator"
+after = "denoise" # the role name: whichever denoiser will actually run
 multiplex = true # suffix the task with _i0 so veralux's "(starnet|palette_broadband).*" prefix-matches instead of exact-matching only palette_broadband
 
 [[stages.inputs.requires]]

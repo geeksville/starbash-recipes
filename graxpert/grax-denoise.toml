@@ -4,9 +4,10 @@ kind = "recipe"
 
 [[stages]]
 
-name = "denoise"
+name = "grax-denoise"
 description = "Do denoising with graxpert"
-exclude_by_default = true # default to excluding this stage unless enabled via starbash.toml - it is very slow
+role = "denoise" # one implementation of the 'denoise' step; rc-astro's noise_exterminator wins when installed
+priority = 300
 
 tool.name = "graxpert"
 tool.parameters = { "ai_version" = "3.0.2" }
