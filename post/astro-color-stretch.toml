@@ -1,0 +1,275 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+# astro-color-stretch by David M. Jones, adapted from rnc-color-stretch (Roger N. Clark).
+# GPL - see src/starbash/recipes/astro_color_stretch.py for the full attribution header.
+description = "Stretch a stacked image with astro-color-stretch: zero-sky black point, stretch and colour restore in one pass."
+
+[[stages]]
+name = "astro_color_stretch"
+description = "astro-color-stretch (ACS): per-channel zero-sky black point, stretch, colour restore"
+tool.name = "python"
+
+script = '''
+    from starbash.recipes import astro_color_stretch
+    astro_color_stretch.logger = logger
+    astro_color_stretch.run(context)
+    '''
+
+[[stages.inputs]]
+kind = "job"
+after = "(starnet|palette_broadband).*" # same slot as the VeraLux stretch
+multiplex = true # one task per upstream file, so multi-file stacks (e.g. Ha/OIII) each get stretched
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1          # At this point if we don't have any valid inputs, reject this stage from consideration
+
+[[stages.inputs.requires]]
+kind = "filename"
+value = "starmask"
+mode = "exclude" # exclude any starmask files from consideration
+
+[[stages.outputs]]
+# the 'processed' output points to a directory in the 'processed' repo but named based on the target we are trying to build for
+kind = "processed"
+
+# if used: Generated output filenames will be based on the input filename, but with this prefix
+auto.prefix = "acs_"
+
+# ---------------------------------------------------------------------------
+# Parameters. Defaults and ranges match astro-color-stretch 1.2 (see
+# doc/plans/astro-stretch.md section 4.3). Where the upstream setup guide uses a
+# different symbol for a setting, that symbol is named in the description.
+# ---------------------------------------------------------------------------
+
+[[stages.parameters]]
+name = "stretch_type"
+default = 1
+description = "Stretch family: 0 = none, 1 = root-power (default), 2 = asinh, 3 = logarithmic"
+
+[[stages.parameters]]
+name = "rootiter"
+default = 1
+description = "Number of root-power stretch passes: 1 or 2. Pass 2 uses rootpower2"
+
+[[stages.parameters]]
+name = "rootpower"
+default = 20
+description = "Root-power stretch strength: 1-600. Higher = more stretch (rootpower)"
+
+[[stages.parameters]]
+name = "rootpower2"
+default = 2
+description = "Root-power stretch strength for the optional 2nd pass: 1-600 (rootpower2, used when rootiter = 2)"
+
+[[stages.parameters]]
+name = "asinhiter"
+default = 1
+description = "Number of asinh stretch passes: 1 or 2. Pass 2 uses k2"
+
+[[stages.parameters]]
+name = "k1"
+default = 100
+description = "Asinh stretch strength (guide: K1): 1-1000. Higher = more stretch"
+
+[[stages.parameters]]
+name = "k2"
+default = 5
+description = "Asinh stretch strength for the optional 2nd pass (guide: K2): 1-1000, used when asinhiter = 2"
+
+[[stages.parameters]]
+name = "logiter"
+default = 1
+description = "Number of logarithmic stretch passes: 1 or 2. Pass 2 uses log_k2"
+
+[[stages.parameters]]
+name = "log_k1"
+default = 100
+description = "Logarithmic stretch strength (guide: logK1): 1-500. Higher = more stretch"
+
+[[stages.parameters]]
+name = "log_k2"
+default = 5
+description = "Logarithmic stretch strength for the optional 2nd pass (guide: logK2): 1-500, used when logiter = 2"
+
+[[stages.parameters]]
+name = "skylevelfactor"
+default = 0.06
+description = "Where the sky level sits relative to the histogram peak, as a fraction of peak height. 0.06 is the 'for most cases' value"
+
+[[stages.parameters]]
+name = "zeroskyred"
+default = 4096
+description = "Desired sky zero point for the red channel, in DN out of 65535. 4096 is the 'for most cases' value; lower it for a darker red sky"
+
+[[stages.parameters]]
+name = "zeroskygreen"
+default = 4096
+description = "Desired sky zero point for the green channel, in DN out of 65535. 0-25000"
+
+[[stages.parameters]]
+name = "zeroskyblue"
+default = 4096
+description = "Desired sky zero point for the blue channel, in DN out of 65535. Raise it when light pollution or moonlight tints the sky blue"
+
+[[stages.parameters]]
+name = "rgbskyzero_method"
+default = 0
+description = "Histogram box used to find the sky level: 0 = full image (default), 1 = auto-scan for the darkest window, 2 = manual window (ulx/uly/win_width/win_height)"
+
+[[stages.parameters]]
+name = "ulx"
+default = 1000
+description = "Upper-left x of the manual sky window, in pixels (rgbskyzero_method = 2)"
+
+[[stages.parameters]]
+name = "uly"
+default = 1000
+description = "Upper-left y of the manual sky window, in pixels (rgbskyzero_method = 2)"
+
+[[stages.parameters]]
+name = "win_width"
+default = 500
+description = "Sky window width in pixels for methods 1 and 2. Too small is noisy, too large picks up sky glow"
+
+[[stages.parameters]]
+name = "win_height"
+default = 700
+description = "Sky window height in pixels for methods 1 and 2. Around 700 px per side is a good start for a 45 MP frame"
+
+[[stages.parameters]]
+name = "win_frac"
+default = 10
+description = "Auto-scan step granularity: the window is stepped by its own size / win_frac. 1 is fastest/roughest, 10 is more accurate"
+
+[[stages.parameters]]
+name = "scurve"
+default = 1
+description = "Number of S-curve passes, 0-4: 0 = none, 1 = s1 (contrast), 2 = s1+s2 (brighter), 3 = s1+s2+s1, 4 = s1+s2+s1+s2"
+
+[[stages.parameters]]
+name = "color_correction_type"
+default = 1
+description = "Colour restore method: 0 = none, 1 = ratio (default), 2 = HSV"
+
+[[stages.parameters]]
+name = "colorenhance"
+default = 1.0
+description = "Colour enhancement strength: 0.0-2.0. 1.0 is the neutral value"
+
+[[stages.parameters]]
+name = "gamma"
+default = 5.0
+description = "Gamma exponent for the HSV colour method: 0.1-10.0. Lower = saturation boost concentrated in bright areas"
+
+[[stages.parameters]]
+name = "hsv_adjust"
+default = false
+description = "Enable the manual HSV adjust step (hue/sat/value/vibrance)"
+
+[[stages.parameters]]
+name = "hue_adjust"
+default = 0
+description = "Hue rotation in degrees, -180 to 180 (hsv_adjust only)"
+
+[[stages.parameters]]
+name = "sat_adjust"
+default = 1.0
+description = "Saturation multiplier, 0.0-2.0 (hsv_adjust only). 1.0 = unchanged"
+
+[[stages.parameters]]
+name = "val_adjust"
+default = 1.0
+description = "Value/brightness multiplier, 0.1-2.0 (hsv_adjust only). 1.0 = unchanged"
+
+[[stages.parameters]]
+name = "vib_adjust"
+default = 0.0
+description = "Vibrance, -1.0 to 1.0 (hsv_adjust only). Protects already-saturated colours; 0.0 = off"
+
+[[stages.parameters]]
+name = "setmin"
+default = false
+description = "Apply a minimum level to each channel so no pixels are crushed to pure black"
+
+[[stages.parameters]]
+name = "setminr"
+default = 4096
+description = "Minimum red level in DN when setmin is on: 0-20000"
+
+[[stages.parameters]]
+name = "setming"
+default = 4096
+description = "Minimum green level in DN when setmin is on: 0-20000"
+
+[[stages.parameters]]
+name = "setminb"
+default = 4096
+description = "Minimum blue level in DN when setmin is on: 0-20000"
+
+[[stages.parameters]]
+name = "wb_mode"
+default = 0
+description = "White balance: 0 = none (default), 1 = gray-world, 2 = temperature/tint"
+
+[[stages.parameters]]
+name = "temp"
+default = 1.0
+description = "White balance temperature factor, 0.8-1.2 (wb_mode = 2). Above 1.0 warms, below cools"
+
+[[stages.parameters]]
+name = "tint"
+default = 1.0
+description = "White balance tint factor, 0.7-1.3 (wb_mode = 2). Above 1.0 moves toward magenta, below toward green"
+
+[[stages.parameters]]
+name = "ca_correct"
+default = false
+description = "Align the red and blue channels onto green to reduce star chromatic aberration. Off by default (upstream defaults to true): this stage runs on the STARLESS frame, so there are no stars left to align, and the ECC solve is slow. Stars are blended back afterwards by the merge_stars recipe. Enable it if you feed a star-containing frame to this stage."
+
+[[stages.parameters]]
+name = "vn_correct"
+default = false
+description = "Subtract a fitted radial vignetting pattern from each channel"
+
+[[stages.parameters]]
+name = "vn_strength"
+default = 30
+description = "Vignetting correction strength as a percentage, 0-100 (vn_correct only)"
+
+[[stages.parameters]]
+name = "lg_correct"
+default = false
+description = "Subtract a fitted linear/planar gradient from each channel"
+
+[[stages.parameters]]
+name = "lg_strength"
+default = 100
+description = "Gradient correction strength as a percentage, 0-100 (lg_correct only)"
+
+[[stages.parameters]]
+name = "star_reduction"
+default = false
+description = "Shrink star halos while preserving bright cores (post-stretch)"
+
+[[stages.parameters]]
+name = "reduction_strength"
+default = 1.0
+description = "Star halo reduction strength, 0.0 (none) to 1.0 (full) (star_reduction only)"
+
+[[stages.parameters]]
+name = "rl_deconvolve"
+default = false
+description = "Apply Richardson-Lucy deconvolution on the luminance channel (post-stretch)"
+
+[[stages.parameters]]
+name = "rl_iterations"
+default = 15
+description = "Richardson-Lucy iterations, 1-40 (rl_deconvolve only). More sharpens harder and amplifies noise"
+
+[[stages.parameters]]
+name = "psf_sigma"
+default = 0.8
+description = "Gaussian-equivalent PSF sigma for deconvolution, 0.1-3.0 (rl_deconvolve only)"

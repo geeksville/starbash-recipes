@@ -74,6 +74,9 @@ dir = "palette/broadband.toml"
 dir = "post/merge_stars.toml"
 
 [[repo-ref]]
+dir = "post/astro-color-stretch.toml"
+
+[[repo-ref]]
 dir = "common/thumbnail.toml"
 
 [[repo-ref]]
