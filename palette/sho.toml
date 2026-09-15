@@ -9,7 +9,7 @@ description = "Generate an 'SHO' (golden/blue Hubble palette) from HaOiii (and o
 name = "palette_sho"
 description = "SHO palette: R=Ha, G=Sii-or-synthetic, B=OIII"
 tool.name = "siril"
-role = "palette"
+#role = "palette"
 
 # Channels are selected out of the prior stage outputs by filename suffix
 # (_Ha / _OIII / _Sii). We load them by absolute path and re-save under canonical

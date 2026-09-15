@@ -9,7 +9,7 @@ description = "Pass a broadband (non-narrowband) stack through unchanged so the 
 name = "palette_broadband"
 description = "Broadband palette: load the denoised broadband stack and save it as broadband.fits"
 tool.name = "siril"
-role = "palette" 
+#role = "palette" 
 
 # Broadband data has no Ha/OIII/SII channels to combine. We just load the
 # noise-reduced stack and re-save it under a canonical name so the downstream

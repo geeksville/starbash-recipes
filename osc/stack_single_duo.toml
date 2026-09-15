@@ -13,7 +13,7 @@ author.name = "Siril Developers"
 name = "stack_single_duo"
 description = "Stack OSC single duo (HaOiii) filter data: with separate Ha and Oiii channels"
 tool.name = "python"
-role = "stack" 
+#role = "stack" 
 priority = 320
 
 # if not specified starbash.py used

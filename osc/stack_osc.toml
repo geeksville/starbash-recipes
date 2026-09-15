@@ -8,7 +8,7 @@ kind = "recipe"
 name = "stack_osc"
 description = "Basic OSC stacking (no fancy narrowband extraction)"
 tool.name = "siril"
-role = "stack" 
+#role = "stack" 
 priority = 310
 
 # Delete the (large) merged/registered frames after reporting. The '*.fit*'
