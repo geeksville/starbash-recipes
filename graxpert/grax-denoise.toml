@@ -19,6 +19,7 @@ script = [
     "denoising",
     "-output",
     "{output.full_paths[0]}",
+    "-gpu", "false", # gpu sometimes crashes on macos. so turn off for all see doc/design/bugs/grax-osx.md
     "{input[0].full_paths[0]}"
 ]
 
