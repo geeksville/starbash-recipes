@@ -40,12 +40,12 @@ auto.prefix = "crop_"
 [[stages.parameters]]
 name = "crop_width"
 default = "80%"
-description = "Maximum crop width, in pixels or as a percentage of the source width"
+description = "Maximum crop width, in pixels or as a percentage of the source width; rounded down to a multiple of 16"
 
 [[stages.parameters]]
 name = "crop_height"
 default = "80%"
-description = "Maximum crop height, in pixels or as a percentage of the source height"
+description = "Maximum crop height, in pixels or as a percentage of the source height; rounded down to a multiple of 16"
 
 [[stages.parameters]]
 name = "rotate_deg"
