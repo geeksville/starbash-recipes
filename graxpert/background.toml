@@ -8,7 +8,9 @@ name = "background"
 description = "Do background subtraction with graxpert"
 role = "background" 
 tool.name = "graxpert"
-tool.parameters = { ai_version = "{parameters.ai_version}", smoothing_option = "{parameters.smoothing_option}" }
+# Keep the original FITS intensity scale across GraXpert's [0,1] loader,
+# including the OIII channel of a duo stack (whose max can exceed 1).
+tool.parameters = { ai_version = "{parameters.ai_version}", smoothing_option = "{parameters.smoothing_option}", preserve_input_range = "true" }
 
 # or inline python code can be provided here.  In this case I'm using some python
 # code I'm temporarily sharing from the main project...

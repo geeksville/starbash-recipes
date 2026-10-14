@@ -21,23 +21,23 @@ script = '''
     # Bring the noise-reduced Ha and OIII channels in under canonical names.
     # Rescale each to 0..1 so both channels enter rgbcomp on the same footing.
     load {[str(p) for p in input["ha"].full_paths if "_Ha" in str(p)][0]}
-    save Ha
-    pm "$Ha$" -rescale 0.0 1.0
-    save Ha
+    save HOO_Ha
+    pm "$HOO_Ha$" -rescale 0.0 1.0
+    save HOO_Ha
     load {[str(p) for p in input["oiii"].full_paths if "_OIII" in str(p)][0]}
-    save OIII
-    pm "$OIII$" -rescale 0.0 1.0
-    save OIII
+    save HOO_OIII
+    pm "$HOO_OIII$" -rescale 0.0 1.0
+    save HOO_OIII
 
     # Green channel: OIII, optionally blended with a little Ha to shift the hue.
-    pm "$Ha$ * {parameters.green_ha_weight} + $OIII$ * {1.0 - parameters.green_ha_weight}" -rescale 0.0 1.0
-    save Green
+    pm "$HOO_Ha$ * {parameters.green_ha_weight} + $HOO_OIII$ * {1.0 - parameters.green_ha_weight}" -rescale 0.0 1.0
+    save HOO_Green
 
     # Merge into an HOO image: R=Ha, G=Green (OIII/blend), B=OIII
-    rgbcomp Ha Green OIII -out=results
+    rgbcomp HOO_Ha HOO_Green HOO_OIII -out=HOO_results
 
     # Move to the final output location
-    load results
+    load HOO_results
     save "{output.full_paths[0]}"
     '''
 

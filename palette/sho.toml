@@ -22,36 +22,52 @@ script = '''
     # Rescale each to 0..1 so all three channels enter rgbcomp on the same
     # footing (otherwise Ha/OIII dominate green and the result goes magenta).
     load {[str(p) for p in input["ha"].full_paths if "_Ha" in str(p)][0]}
-    save Ha
-    pm "$Ha$" -rescale 0.0 1.0
-    save Ha
+    save SHO_Ha
+    pm "$SHO_Ha$" -rescale 0.0 1.0
+    save SHO_Ha
     load {[str(p) for p in input["oiii"].full_paths if "_OIII" in str(p)][0]}
-    save OIII
-    pm "$OIII$" -rescale 0.0 1.0
-    save OIII
+    save SHO_OIII
+    pm "$SHO_OIII$" -rescale 0.0 1.0
+    save SHO_OIII
 
     # Green channel: use the real Sii channel if present, otherwise synthesize one from Ha+OIII
-    {'load ' + [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)] else 'pm "$Ha$ * ' + str(parameters.ha_weight) + ' + $OIII$ * ' + str(parameters.oiii_weight) + '" -rescale 0.0 1.0'}
-    save SynGreen
+    {'load ' + [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)] else 'pm "$SHO_Ha$ * ' + str(parameters.ha_weight) + ' + $SHO_OIII$ * ' + str(parameters.oiii_weight) + '" -rescale 0.0 1.0'}
+    save SHO_SynGreen
     # Rescale Sii to 0..1 like Ha/OIII above. Without this the raw Sii
     # background (~5e-4) is ~20x brighter than the rescaled Ha/OIII
     # backgrounds (~2e-5) and the composite goes bright green.
-    pm "$SynGreen$" -rescale 0.0 1.0
-    save SynGreen
+    pm "$SHO_SynGreen$" -rescale 0.0 1.0
+    save SHO_SynGreen
+    # This also applies when green is synthesized from Ha/OIII; no later rescale
+    # should cancel the optional green strength.
+    pm "$SHO_SynGreen$ + ({parameters.green_strength} - 1) * max($SHO_SynGreen$ - median($SHO_SynGreen$), 0) * (1 - $SHO_SynGreen$) / (max(1 - median($SHO_SynGreen$), 0.000001) + ({parameters.green_strength} - 1) * max($SHO_SynGreen$ - median($SHO_SynGreen$), 0))"
+    save SHO_SynGreen
+
+    # Boost blue only after synthesizing green: a target without real Sii uses
+    # the UNBOOSTED OIII in its green blend, so the controls remain independent.
+    # At strength 1 this is the identity; the median sky and clipped stars stay put.
+    pm "$SHO_OIII$ + ({parameters.blue_strength} - 1) * max($SHO_OIII$ - median($SHO_OIII$), 0) * (1 - $SHO_OIII$) / (max(1 - median($SHO_OIII$), 0.000001) + ({parameters.blue_strength} - 1) * max($SHO_OIII$ - median($SHO_OIII$), 0))"
+    save SHO_OIII
+
+    # For real Sii, the stronger of the boosted green/blue signals controls
+    # red suppression (not their sum, which would double-count overlap).
+    # Synthetic green contains Ha, so use ONLY blue on single-duo targets:
+    # otherwise an Ha-only nebula would suppress its own red channel.
+    pm "max($SHO_OIII$ - median($SHO_OIII$), {'$SHO_SynGreen$ - median($SHO_SynGreen$)' if [str(p) for p in input['sii'].full_paths if '_Sii' in str(p)] else '0'})"
+    save SHO_Companion
+    # Suppress Ha signal above its median where real Sii and/or OIII are bright.
+    # At strength 0 red is unchanged; (1 - Ha) protects white star cores.
+    pm "$SHO_Ha$ - {parameters.red_suppression} * max($SHO_Ha$ - median($SHO_Ha$), 0) * max($SHO_Companion$, 0) / (max($SHO_Ha$ - median($SHO_Ha$), 0) + max($SHO_Companion$, 0) + 0.000001) * (1 - $SHO_Ha$)"
+    save SHO_Ha
 
     # Merge into an SHO image: R=Ha, G=SynGreen (Sii or synthetic), B=OIII
-    rgbcomp Ha SynGreen OIII -out=results
+    rgbcomp SHO_Ha SHO_SynGreen SHO_OIII -out=SHO_results
 
-    # Remove the residual magenta/purple cast. SCNR (rmgreen) only removes
-    # *green*, so we invert (magenta -> green), run rmgreen, then invert back.
-    pm "1 - $results$"
-    rmgreen
-    save results
-    pm "1 - $results$"
-    save results
+    # Keep the synthetic green selected by ha_weight / oiii_weight. Inverted
+    # rmgreen used to floor it at (R+B)/2 and alter red/blue as well.
 
     # Move to the final output location
-    load results
+    load SHO_results
     save "{output.full_paths[0]}"
     '''
 
@@ -98,15 +114,12 @@ value = 1
 [[stages.inputs]]
 kind = "job"
 name = "sii"
-# Sii is optional: without min_count, an absent matching input is represented
-# by an empty FileInfo and the script synthesizes green instead.
+# Sii is optional: without a _Sii output the script synthesizes green instead.
+# A dual-duo stack combines HaOiii and SiiOiii sessions. Its downstream
+# multiplexed tasks inherit HaOiii metadata even for the _Sii output, so do not
+# gate this channel on an upstream session's FILTER; select its actual filename.
 after = "denoise" # the role name: whichever denoiser will actually run
 optional = true
-
-[[stages.inputs.requires]]
-kind = "metadata"
-name = "filter"
-value = ["SiiOiii"]
 
 [[stages.inputs.requires]]
 kind = "filename"
@@ -125,3 +138,18 @@ description = "Ha contribution when synthesizing the green channel (0..1)"
 name = "oiii_weight"
 default = 0.6                                                                # Value used if not overriden
 description = "OIII contribution when synthesizing the green channel (0..1)"
+
+[[stages.parameters]]
+name = "green_strength"
+default = 4
+description = "Boost Sii (or synthetic green) signal above its sky median; 1 = unchanged, try 1.5 for Ha-dominant targets (>=1)"
+
+[[stages.parameters]]
+name = "blue_strength"
+default = 4.0
+description = "Boost OIII (blue) signal above its sky median; 1 = unchanged, try 2.0 for Ha-dominant targets (>=1)"
+
+[[stages.parameters]]
+name = "red_suppression"
+default = 0.9
+description = "Reduce Ha where boosted OIII or real Sii is strong; synthetic green is ignored. 0 = unchanged, 1 = strongest (0..1)"
