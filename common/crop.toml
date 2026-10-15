@@ -50,4 +50,4 @@ description = "Maximum crop height, in pixels or as a percentage of the source h
 [[stages.parameters]]
 name = "rotate_deg"
 default = 0
-description = "Rotation angle in degrees after cropping"
+description = "Rotation angle in degrees after cropping; normalized to 0-360. Exact 90, 180 and 270 rotations keep the whole rotated image, so 90 and 270 also swap the output width and height."
