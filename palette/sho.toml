@@ -141,15 +141,15 @@ description = "OIII contribution when synthesizing the green channel (0..1)"
 
 [[stages.parameters]]
 name = "green_strength"
-default = 4
+default = 2
 description = "Boost Sii (or synthetic green) signal above its sky median; 1 = unchanged, try 1.5 for Ha-dominant targets (>=1)"
 
 [[stages.parameters]]
 name = "blue_strength"
-default = 4.0
+default = 2.0
 description = "Boost OIII (blue) signal above its sky median; 1 = unchanged, try 2.0 for Ha-dominant targets (>=1)"
 
 [[stages.parameters]]
 name = "red_suppression"
-default = 0.9
+default = 0.3
 description = "Reduce Ha where boosted OIII or real Sii is strong; synthetic green is ignored. 0 = unchanged, 1 = strongest (0..1)"
