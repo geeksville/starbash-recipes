@@ -11,13 +11,30 @@ tool.name = "siril"
 
 # Base = hms_starless_<palette>.fits (VeraLux, already stretched).
 # Star layer = its sibling starmask_<palette>.fits (starnet, linear/unstretched),
-# autostretched into the same tonal range, scaled by merge_star_amount, then
-# screen-blended back over the starless image.
+# autostretched into the same tonal range, then screen-blended back over the
+# starless image.
+#
+# When a cropped broadband plate resolved, the mask is a stencil rather than the
+# star layer. It was made on the palette, so it is already on the finished plate;
+# multiplying it into the broadband image keeps those star positions and sizes
+# and takes the star colour from the broadband data. The stacked plate is one
+# layer, and PixelMath refuses to multiply that into the three-layer mask, so
+# it is copied into RGB first. The asinh stretch then runs on that masked plate,
+# where it used to run on the mask itself. With no broadband plate the
+# siril_line expansions are empty and this is the previous script. The plate is
+# the denoised one when that stage ran, otherwise the cropped stack.
 script = '''
     load "{input[0].full_paths[0]}"
     save starless
 
     load "{str(input[0].full_paths[0].parent / (input[0].full_paths[0].stem.replace('hms_starless_', 'starmask_') + '.fits'))}"
+    save starmask
+    {siril_line(input["broadband"], 'load "%s"', input["broadband"].full_paths[0] if input["broadband"].full_paths else "")}
+    {siril_line(input["broadband"], "save broadband", "")}
+    {siril_line(input["broadband"], "rgbcomp broadband broadband broadband -out=broadband_rgb", "")}
+    {siril_line(input["broadband"], 'pm "$broadband_rgb$ * $starmask$"', "")}
+    {siril_line(input["broadband"], "save starmask", "")}
+    load starmask
     asinh -human {parameters.stretch}
     save stars
 
@@ -42,6 +59,19 @@ value = 1
 kind = "filename"
 value = "hms_starless"
 mode = "include"
+
+# The cropped broadband plate, after background/deblur/denoise when those ran.
+# The denoise role wins when it produced the plate; crop is the fallback when
+# it did not. Not multiplexed: every palette blends the same one star plate.
+[[stages.inputs]]
+kind = "job"
+name = "broadband"
+after = "(denoise|crop)"
+optional = true
+
+[[stages.inputs.requires]]
+kind = "filename"
+value = "stacked_bb\\.fits$"
 
 [[stages.outputs]]
 kind = "processed"

@@ -31,6 +31,15 @@ name = "filter"
 value = ["HaOiii", "SiiOiii"]
 invert = true
 
+# A narrowband target with an added broadband night also produces
+# crop_stacked_bb.fits. That file is a star plate, not this palette's input;
+# the metadata gate above only rejects it while the inherited filter happens to
+# be narrowband. Say so directly.
+[[stages.inputs.requires]]
+kind = "filename"
+value = "stacked_bb"
+mode = "exclude"
+
 [[stages.inputs.requires]]
 kind = "min_count"
 value = 1

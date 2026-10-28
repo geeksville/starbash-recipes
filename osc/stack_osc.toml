@@ -47,7 +47,14 @@ script = '''
 [[stages.inputs]]
 kind = "job"
 merge_to = "in"
-after = "light.*" # the name of the step we want to follow
+after = "(?:seqextract_haoiii|light.*)" # a duo night is rewritten; follow both so that night is dropped
+
+# Extraction publishes r_Ha_/r_OIII_ names and leaves the original bkg_pp_light
+# sequence behind. The original is what a colour stack wants, and only from a
+# night extraction did not rewrite.
+[[stages.inputs.requires]]
+kind = "filename"
+value = "^bkg_pp_light"
 
 # Based on the following definitions in the stage toml file...
 # Note: outputs will be prefilled in the context so that the script can use them

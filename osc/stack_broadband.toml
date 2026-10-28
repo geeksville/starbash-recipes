@@ -1,0 +1,73 @@
+[repo]
+kind = "recipe"
+
+[recipe]
+description = "Stack broadband (non-duo) lights onto the narrowband plate, so a later star blend can use broadband stars."
+
+[[stages]]
+
+name = "stack_broadband"
+description = "Register broadband lights to the narrowband Ha plate and stack them as stacked_bb.fits"
+tool.name = "python"
+# No role = "stack". stack_dual_duo owns that role, and only one stage per role
+# runs. Joining it would drop this stage before a task was ever created.
+
+script = '''
+    from starbash.recipes import osc
+    osc.logger = logger
+    osc.context = context
+    osc.stack_broadband()
+    '''
+
+[[stages.inputs]]
+kind = "job"
+name = "ha"
+# stack_dual_duo, stack_single_duo and stack_osc are the stages that can write
+# the plate. "stack_.*" would also match this stage, and crop follows this
+# stage, so the pattern would be a cycle.
+after = "stack_(dual_duo|single_duo|osc)"
+
+[[stages.inputs.requires]]
+kind = "filename"
+value = "_Ha\\.fits$"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+# The calibrated broadband sequence. light.* writes bkg_pp_light for every
+# night, duo included; seqextract_haoiii is what rewrites a duo night to
+# r_Ha_/r_OIII_bkg_pp_light and leaves a broadband night untouched. Following
+# the light stage would therefore accept the duo sequences as well.
+[[stages.inputs]]
+kind = "job"
+name = "lights"
+after = "(?:seqextract_haoiii|light.*)"
+merge_to = "bb"
+
+[[stages.inputs.requires]]
+kind = "filename"
+value = "^bkg_pp_light"
+
+[[stages.inputs.requires]]
+kind = "min_count"
+value = 1
+
+[[stages.outputs]]
+kind = "processed"
+name = ["stacked_bb.fits"]
+
+[[stages.parameters]]
+name = "drizzle"
+default = ""
+description = "Drizzle option for registering the broadband sequence to the narrowband plate. Empty is required: the Ha plate has no Bayer pattern and the lights are CFA, and Siril 1.4.4 crashes in seqapplyreg -drizzle on that mismatch. -drizzle is only safe when every member shares a CFA pattern."
+
+[[stages.parameters]]
+name = "framing"
+default = "cog"
+description = "Framing for the registration. cog matches the duo stack, which is what makes the plates the same size."
+
+[[stages.parameters]]
+name = "filtering"
+default = "-filter-wfwhm=80% -filter-round=80% -filter-bkg=80%"
+description = "Which broadband frames seqapplyreg accepts before stacking."

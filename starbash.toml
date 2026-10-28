@@ -35,6 +35,9 @@ dir = "osc/seqextract_haoiii.toml"
 dir = "osc/stack_dual_duo.toml"
 
 [[repo-ref]]
+dir = "osc/stack_broadband.toml"
+
+[[repo-ref]]
 dir = "osc/stack_single_duo.toml"
 
 [[repo-ref]]
