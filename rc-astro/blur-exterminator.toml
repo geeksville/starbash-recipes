@@ -8,6 +8,9 @@ description = "Sharpen/deconvolve with BlurXTerminator (rc-astro bxt)"
 role = "deblur" # preferred implementation of the 'deblur' step (beats graxpert's deconv-obj)
 priority = 350
 tool.name = "rc-astro"
+# Keep the original FITS intensity scale across rc-astro's [0,1] loader,
+# including the OIII/Sii channels of a duo stack (whose max can exceed 1).
+tool.parameters = { preserve_input_range = "true" }
 
 # Note: --json is injected automatically by RCAstroTool, do not add it here.
 script = [

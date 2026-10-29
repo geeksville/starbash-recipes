@@ -9,15 +9,18 @@ name = "starnet"
 description = "Star removal with StarNet via Siril"
 tool.name = "starnet"
 
-# Siril's 'starnet' command writes starless_<stem>.fit and starmask_<stem>.fit into
-# the working directory (process_dir). We load each result by basename and re-save it
-# to the declared output paths.
+# Siril's 'starnet' command writes starless_<stem> and starmask_<stem> into the
+# working directory (process_dir), using the user's configured FITS extension
+# (.fit or .fits). We load each result by basename and re-save it to the declared
+# output paths.  The spelling is resolved at expansion time (not hardcoded):
+# a hardcoded '.fit' used to silently load a stale sibling left by an older
+# Siril config (doc/plans/duo-palette-orange.md).
 script = '''
     load "{input[0].full_paths[0]}"
     starnet {parameters.params}
-    load "starless_{input[0].full_paths[0].stem}.fit"
+    load "{resolve_fits_variant(str(process_dir) + '/starless_' + input[0].full_paths[0].stem + '.fit')}"
     save "{output.full_paths[0]}"
-    load "starmask_{input[0].full_paths[0].stem}.fit"
+    load "{resolve_fits_variant(str(process_dir) + '/starmask_' + input[0].full_paths[0].stem + '.fit')}"
     save "{output.full_paths[1]}"
     '''
 

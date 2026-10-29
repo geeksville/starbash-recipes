@@ -8,6 +8,9 @@ description = "Denoise with NoiseXTerminator (rc-astro nxt)"
 role = "denoise" # preferred implementation of the 'denoise' step (beats graxpert's denoise)
 priority = 350
 tool.name = "rc-astro"
+# Keep the original FITS intensity scale across rc-astro's [0,1] loader: the
+# denoise stage must not re-normalize what blur_exterminator just restored.
+tool.parameters = { preserve_input_range = "true" }
 
 # Note: --json is injected automatically by RCAstroTool, do not add it here.
 script = [

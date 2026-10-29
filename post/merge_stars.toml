@@ -15,26 +15,45 @@ tool.name = "siril"
 # starless image.
 #
 # When a cropped broadband plate resolved, the mask is a stencil rather than the
-# star layer. It was made on the palette, so it is already on the finished plate;
-# multiplying it into the broadband image keeps those star positions and sizes
-# and takes the star colour from the broadband data. The stacked plate is one
-# layer, and PixelMath refuses to multiply that into the three-layer mask, so
-# it is copied into RGB first. The asinh stretch then runs on that masked plate,
-# where it used to run on the mask itself. With no broadband plate the
-# siril_line expansions are empty and this is the previous script. The plate is
-# the denoised one when that stage ran, otherwise the cropped stack.
+# star layer.  In both cases the stars' *colour* must come from neutral data, not
+# from the palette mask: the mask carries the narrowband SHO hue (blue after the
+# boosts) and its R/G/B ratios would leak into the stars (the broadband branch
+# used to multiply the plate by the coloured mask).  So we first flatten the mask
+# to its per-pixel luminance, and both branches use that neutral stencil: the
+# broadband plate's stars keep the plate's (single-layer) brightness, the fallback
+# uses the mask luminance directly.  Separately, the starless still carries
+# residual star light (starnet is not perfect) tinted by the palette; we knock it
+# out under the mask before blending so the stars you see come from the neutral
+# star layer.  The plate is the denoised one when that stage ran, otherwise the
+# cropped stack.
 script = '''
     load "{input[0].full_paths[0]}"
     save starless
 
     load "{str(input[0].full_paths[0].parent / (input[0].full_paths[0].stem.replace('hms_starless_', 'starmask_') + '.fits'))}"
     save starmask
+    pm "min($starless$ * (1 - {parameters.star_residual_removal} * min($starmask$ / (max($starmask$) + 1.0e-9), 1)), 1)"
+    save starless
+    # Neutral stencil: the mask's per-pixel luminance (split -> average -> RGB).
+    load starmask
+    split r g b
+    load r
+    save rchan
+    load g
+    save gchan
+    load b
+    save bchan
+    load rchan
+    pm "($rchan$ + $gchan$ + $bchan$) / 3"
+    save luma
+    rgbcomp luma luma luma -out=starmask_flat
     {siril_line(input["broadband"], 'load "%s"', input["broadband"].full_paths[0] if input["broadband"].full_paths else "")}
     {siril_line(input["broadband"], "save broadband", "")}
     {siril_line(input["broadband"], "rgbcomp broadband broadband broadband -out=broadband_rgb", "")}
-    {siril_line(input["broadband"], 'pm "$broadband_rgb$ * $starmask$"', "")}
+    {siril_line(input["broadband"], 'pm "$broadband_rgb$ * $starmask_flat$"', "")}
     {siril_line(input["broadband"], "save starmask", "")}
-    load starmask
+    {siril_line(input["broadband"], "load starmask", "")}
+    {'load starmask_flat' if not input['broadband'].full_paths else ''}
     asinh -human {parameters.stretch}
     save stars
 
@@ -82,4 +101,9 @@ name = ["{input[0].full_paths[0].stem.replace('hms_starless_', 'merged_')}.fits"
 name = "stretch"
 default = 1000.0
 description = "asinh stretch factor applied to the linear starmask before blending (higher = more stars visible)"
+
+[[stages.parameters]]
+name = "star_residual_removal"
+default = 0.85
+description = "How much residual star light is knocked out of the starless under the star mask before blending (0 = keep it, 1 = fully remove). The residuals carry the palette's narrowband star tint; removing them lets the neutral star layer show"
 

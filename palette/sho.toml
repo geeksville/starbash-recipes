@@ -18,46 +18,60 @@ tool.name = "siril"
 # The green line is a single template expression: if a _Sii channel is present it
 # expands to `load <sii>` (real Sii on green), otherwise to a `pm` blend of Ha+OIII.
 script = '''
-    # Bring the noise-reduced Ha and OIII channels in under canonical names.
-    # Rescale each to 0..1 so all three channels enter rgbcomp on the same
-    # footing (otherwise Ha/OIII dominate green and the result goes magenta).
+    # Bring the noise-reduced Ha/OIII channels in under canonical names and
+    # normalize each to its own signal scale.  A plain -rescale 0..1 divides by
+    # the global max, which a duo-stack OIII channel pins at ~3 (a star), so its
+    # nebulosity enters rgbcomp ~8x fainter than Ha's and no colour control can
+    # lift it (doc/plans/duo-palette-orange.md).  Instead we subtract each
+    # channel's median (sky -> 0) and divide the above-sky signal by the
+    # channel's own P99 (read from the input file at expansion time), so all
+    # three channels contribute on a comparable, star-free footing; the P99
+    # maps to `signal_reference` (a small linear value, not 1.0) so the nebula
+    # keeps headroom for the display stretch and the top-1% does not blow out;
+    # bright stars still clip at 1 and stay white.
     load {[str(p) for p in input["ha"].full_paths if "_Ha" in str(p)][0]}
     save SHO_Ha
-    pm "$SHO_Ha$" -rescale 0.0 1.0
+    pm "min(max($SHO_Ha$ - median($SHO_Ha$), 0) * {signal_scale([str(p) for p in input['ha'].full_paths if '_Ha' in str(p)][0])} * {parameters.signal_reference}, 1)"
     save SHO_Ha
     load {[str(p) for p in input["oiii"].full_paths if "_OIII" in str(p)][0]}
     save SHO_OIII
-    pm "$SHO_OIII$" -rescale 0.0 1.0
+    pm "min(max($SHO_OIII$ - median($SHO_OIII$), 0) * {signal_scale([str(p) for p in input['oiii'].full_paths if '_OIII' in str(p)][0])} * {parameters.signal_reference}, 1)"
     save SHO_OIII
 
-    # Green channel: use the real Sii channel if present, otherwise synthesize one from Ha+OIII
-    {'load ' + [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)] else 'pm "$SHO_Ha$ * ' + str(parameters.ha_weight) + ' + $SHO_OIII$ * ' + str(parameters.oiii_weight) + '" -rescale 0.0 1.0'}
+    # Green channel: use the real Sii channel if present, otherwise synthesize
+    # one from the (already normalized) Ha+OIII channels.
+    {'load ' + [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)][0] if [str(p) for p in input["sii"].full_paths if "_Sii" in str(p)] else 'pm "$SHO_Ha$ * ' + str(parameters.ha_weight) + ' + $SHO_OIII$ * ' + str(parameters.oiii_weight) + '"'}
     save SHO_SynGreen
-    # Rescale Sii to 0..1 like Ha/OIII above. Without this the raw Sii
-    # background (~5e-4) is ~20x brighter than the rescaled Ha/OIII
-    # backgrounds (~2e-5) and the composite goes bright green.
-    pm "$SHO_SynGreen$" -rescale 0.0 1.0
+    # The real-Sii branch gets the same anchored normalization as Ha/OIII above;
+    # the synthetic blend is already on their scale and must not be re-scaled.
+    {'pm "min(max($SHO_SynGreen$ - median($SHO_SynGreen$), 0) * ' + str(signal_scale([str(p) for p in input['sii'].full_paths if '_Sii' in str(p)][0])) + ' * ' + str(parameters.signal_reference) + ', 1)"' if [str(p) for p in input['sii'].full_paths if '_Sii' in str(p)] else ''}
     save SHO_SynGreen
-    # This also applies when green is synthesized from Ha/OIII; no later rescale
-    # should cancel the optional green strength.
-    pm "$SHO_SynGreen$ + ({parameters.green_strength} - 1) * max($SHO_SynGreen$ - median($SHO_SynGreen$), 0) * (1 - $SHO_SynGreen$) / (max(1 - median($SHO_SynGreen$), 0.000001) + ({parameters.green_strength} - 1) * max($SHO_SynGreen$ - median($SHO_SynGreen$), 0))"
+    # Boost the above-sky signal of each non-red channel.  The normalization
+    # above made the sky exactly 0, which is also the anchor here - not Siril's
+    # median(), whose histogram median jumps up onto the signal once roughly
+    # half the pixels are clipped to 0.  At strength 1 this is the identity;
+    # the clipped sky stays at 0 and stars stay at 1.
+    pm "$SHO_SynGreen$ + ({parameters.green_strength} - 1) * $SHO_SynGreen$ * (1 - $SHO_SynGreen$) / (1 + ({parameters.green_strength} - 1) * $SHO_SynGreen$)"
     save SHO_SynGreen
 
     # Boost blue only after synthesizing green: a target without real Sii uses
     # the UNBOOSTED OIII in its green blend, so the controls remain independent.
-    # At strength 1 this is the identity; the median sky and clipped stars stay put.
-    pm "$SHO_OIII$ + ({parameters.blue_strength} - 1) * max($SHO_OIII$ - median($SHO_OIII$), 0) * (1 - $SHO_OIII$) / (max(1 - median($SHO_OIII$), 0.000001) + ({parameters.blue_strength} - 1) * max($SHO_OIII$ - median($SHO_OIII$), 0))"
+    pm "$SHO_OIII$ + ({parameters.blue_strength} - 1) * $SHO_OIII$ * (1 - $SHO_OIII$) / (1 + ({parameters.blue_strength} - 1) * $SHO_OIII$)"
     save SHO_OIII
 
     # For real Sii, the stronger of the boosted green/blue signals controls
     # red suppression (not their sum, which would double-count overlap).
     # Synthetic green contains Ha, so use ONLY blue on single-duo targets:
     # otherwise an Ha-only nebula would suppress its own red channel.
-    pm "max($SHO_OIII$ - median($SHO_OIII$), {'$SHO_SynGreen$ - median($SHO_SynGreen$)' if [str(p) for p in input['sii'].full_paths if '_Sii' in str(p)] else '0'})"
+    pm "max($SHO_OIII$, {'$SHO_SynGreen$' if [str(p) for p in input['sii'].full_paths if '_Sii' in str(p)] else '0'})"
     save SHO_Companion
-    # Suppress Ha signal above its median where real Sii and/or OIII are bright.
-    # At strength 0 red is unchanged; (1 - Ha) protects white star cores.
-    pm "$SHO_Ha$ - {parameters.red_suppression} * max($SHO_Ha$ - median($SHO_Ha$), 0) * max($SHO_Companion$, 0) / (max($SHO_Ha$ - median($SHO_Ha$), 0) + max($SHO_Companion$, 0) + 0.000001) * (1 - $SHO_Ha$)"
+    # Suppress Ha in proportion to how strongly real Sii and/or OIII dominate
+    # it: A*C/(A+C) is Ha's above-sky signal A scaled by the companion dominance
+    # ratio C/(A+C), so the red cast is silenced where the boosted companion
+    # wins (and grows with the companion's strength).  (1 - min(R, G, B))
+    # protects white star cores only - the old (1 - Ha) also shielded bright
+    # red nebula that the companion should have tamed.
+    pm "$SHO_Ha$ - {parameters.red_suppression} * $SHO_Ha$ * $SHO_Companion$ / ($SHO_Ha$ + $SHO_Companion$ + 0.000001) * (1 - min($SHO_Ha$, min($SHO_SynGreen$, $SHO_OIII$)))"
     save SHO_Ha
 
     # Merge into an SHO image: R=Ha, G=SynGreen (Sii or synthetic), B=OIII
@@ -152,4 +166,9 @@ description = "Boost OIII (blue) signal above its sky median; 1 = unchanged, try
 [[stages.parameters]]
 name = "red_suppression"
 default = 0.3
-description = "Reduce Ha where boosted OIII or real Sii is strong; synthetic green is ignored. 0 = unchanged, 1 = strongest (0..1)"
+description = "Suppress Ha in proportion to how strongly boosted OIII (or real Sii) exceeds Ha's own above-sky signal; synthetic green is ignored. 0 = unchanged, 1 = strongest (0..1)"
+
+[[stages.parameters]]
+name = "signal_reference"
+default = 0.1
+description = "Linear value each channel's P99 maps to; lower = gentler (less noise amplification and top-1% blowout), higher = brighter. Leave headroom for the display stretch (0.02..0.5)"
