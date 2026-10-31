@@ -12,15 +12,19 @@ tool.name = "starnet"
 # Siril's 'starnet' command writes starless_<stem> and starmask_<stem> into the
 # working directory (process_dir), using the user's configured FITS extension
 # (.fit or .fits). We load each result by basename and re-save it to the declared
-# output paths.  The spelling is resolved at expansion time (not hardcoded):
-# a hardcoded '.fit' used to silently load a stale sibling left by an older
-# Siril config (doc/plans/duo-palette-orange.md).
+# output paths.  The load names carry NO extension: Siril resolves the spelling
+# itself, using the same configured extension it just used to write the files,
+# so the re-load always finds them (a filesystem probe like
+# resolve_fits_variant() cannot work here - at script-expansion time the starnet
+# command has not run yet, so neither spelling exists on disk and the probe is
+# a no-op that leaves a hardcoded '.fit' behind, which then fails on machines
+# whose preference is '.fits').
 script = '''
     load "{input[0].full_paths[0]}"
     starnet {parameters.params}
-    load "{resolve_fits_variant(str(process_dir) + '/starless_' + input[0].full_paths[0].stem + '.fit')}"
+    load "{str(process_dir)}/starless_{input[0].full_paths[0].stem}"
     save "{output.full_paths[0]}"
-    load "{resolve_fits_variant(str(process_dir) + '/starmask_' + input[0].full_paths[0].stem + '.fit')}"
+    load "{str(process_dir)}/starmask_{input[0].full_paths[0].stem}"
     save "{output.full_paths[1]}"
     '''
 
